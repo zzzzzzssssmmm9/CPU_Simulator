@@ -141,17 +141,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cpu.cpp" />
+    <ClCompile Include="initialize.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="memory.cpp" />
     <ClCompile Include="process.cpp" />
     <ClCompile Include="task.cpp" />
+    <ClCompile Include="task_schedule.cpp" />
     <ClCompile Include="thread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cpu.h" />
+    <ClInclude Include="initialize.h" />
+    <ClInclude Include="main.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="process.h" />
     <ClInclude Include="task.h" />
+    <ClInclude Include="task_schedule.h" />
     <ClInclude Include="thread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -21,6 +21,7 @@ class multi_core
 private:
 	int core_num;               //多核处理器核心数量
 	int state;					//多核处理器状态: 0 - 负载均衡；1 - 非负载均衡
+	core* p_core;
 public:
 	multi_core();
 	multi_core(int num);

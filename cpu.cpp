@@ -1,5 +1,7 @@
 #include "cpu.h"
 
+int i;
+core* p_temp_core;
 
 core::core()
 {
@@ -17,6 +19,7 @@ multi_core::multi_core()
 {
 	core_num = 10;
 	state = 0;
+	
 }
 
 multi_core::multi_core(int num)
