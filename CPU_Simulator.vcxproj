@@ -85,10 +85,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,21 +144,30 @@
     <ClCompile Include="cpu.cpp" />
     <ClCompile Include="initialize.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="math.cpp" />
     <ClCompile Include="memory.cpp" />
     <ClCompile Include="process.cpp" />
+    <ClCompile Include="random.cpp" />
+    <ClCompile Include="scheduler.cpp" />
     <ClCompile Include="task.cpp" />
     <ClCompile Include="task_schedule.cpp" />
     <ClCompile Include="thread.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cpu.h" />
     <ClInclude Include="initialize.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="math.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="process.h" />
+    <ClInclude Include="random.h" />
+    <ClInclude Include="scheduler.h" />
+    <ClInclude Include="system.h" />
     <ClInclude Include="task.h" />
     <ClInclude Include="task_schedule.h" />
     <ClInclude Include="thread.h" />
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,8 +13,9 @@ int init()
 	}
 	else
 	{
-		ret = init_sigle();
+		ret = init_single();
 	}
+
 	return ret;
 }
 

@@ -12,4 +12,14 @@ private:
 public:
 	task();
 	task(int id, int time, int com, int priority);
+	int get_time();
+	int get_com();
+	int get_ID();
+	int get_prio();
+};
+
+struct ttask
+{
+	task T;
+	ttask* p;
 };

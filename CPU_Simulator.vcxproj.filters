@@ -39,6 +39,18 @@
     <ClCompile Include="initialize.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="random.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="math.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="scheduler.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cpu.h">
@@ -63,6 +75,21 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="main.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="random.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="math.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="scheduler.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="system.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

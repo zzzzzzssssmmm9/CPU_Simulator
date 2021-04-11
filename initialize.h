@@ -6,7 +6,7 @@ using namespace std;
 
 int init();
 
-int init_sigle();
+int init_single();
 
 int init_multi();
 
