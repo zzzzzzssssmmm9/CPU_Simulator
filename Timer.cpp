@@ -48,8 +48,8 @@ int Timer::set_timer()
 	}
 	else
 	{
-		printf("input Base Timer\n");
-		scanf("%f", Base_Timer);
+		printf("input Base Timer, CPU Time Mul, IO Time Mul\n");
+		scanf("%f,%f,%f", &Base_Timer, &CPU_T_mul, &IO_T_mul);
 	}
 	T_set();
 	return 0;
@@ -72,6 +72,8 @@ int Timer::run(int modle)             //选择时钟运行模式:( 0 ) 基础时钟,( 1 ) CP
 	case 3:                //CPU Super Timer
 		for (i = 0; i < CPU_Timer * 0.7; i++);
 		break;
+	case 4:                //4ms, Linux Base Timer
+		for (i = 0; i < 1875000; i++);    
 	default:
 		return 1;
 	}

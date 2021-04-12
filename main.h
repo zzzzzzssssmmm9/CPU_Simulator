@@ -1,5 +1,4 @@
 #pragma once
 #include "cpu.h"
 #include "task.h";
-
-extern 
+#include <windows.h>

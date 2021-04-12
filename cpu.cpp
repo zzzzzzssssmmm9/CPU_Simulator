@@ -3,7 +3,6 @@
 int i;
 core* p_temp_core;
 task* p_temp_task;
-
 core::core()
 {
 	computing_resource = 10;
@@ -166,6 +165,40 @@ int core::add_task(task* p, int n)       //返回有几个任务分配失败
 	return 0;
 }
 
+int core::get_one_task(int no, task* p_return)
+{
+	ttask* p;
+	p = p_task_start->p;
+	int i;
+	for (i = 1; i < no; i++)
+	{
+		p = p->p;
+	}
+	p_return = &(p->T);
+	return 0;
+}
+
+int core::get_task(int start_no, int num, task** q)
+{
+	int i;
+	ttask* p_temp_ttask;
+	p_temp_ttask = p_task_start;
+	for (i = 0; i < start_no; i++)
+	{
+		p_temp_ttask = p_temp_ttask->p;
+	}
+	for (i = 0; i < num; i++)
+	{
+		if (!p_temp_ttask)
+		{
+			return 1;
+		}
+		q[i] = &(p_temp_ttask->T);
+		p_temp_ttask = p_temp_ttask->p;
+	}
+	return 0;
+}
+
 int core::remove_one_task()
 {
 	ttask* p;
@@ -205,6 +238,11 @@ ttask* core::get_p_task_start()
 ttask* core::get_p_task_end()
 {
 	return p_task_end;
+}
+
+int core::get_task_num()
+{
+	return task_num;
 }
 
 multi_core::multi_core()
@@ -294,8 +332,13 @@ int multi_core::add_one_core_task(int no, task* p, int n)   //返回有几个任务分配
 	return p_temp_core->add_task(p, n);
 }
 
-int multi_core::add_task()
+int multi_core::add_task(int start_core_no, task** p, int core_num, int* n)
 {
+	int i;
+	for (i = 0; i < core_num; i++)
+	{
+		p_core[start_core_no + i]->add_task(p[i], n[i]);
+	}
 	return 0;
 }
 
@@ -353,4 +396,46 @@ ttask** multi_core::get_p_task_end()
 		p_temp_p_ttask[i] = p_temp_ttask;
 	}
 	return p_temp_p_ttask;
+}
+
+int multi_core::get_one_core_task_num(int no, int* num)
+{
+	p_temp_core = p_core[no];
+	*num = p_temp_core->get_task_num();
+	return 0;
+}
+
+int multi_core::get_core_task_num(int no_start, int num, int** n)
+{
+	int i;
+	for (i = 0; i < num; i++)
+	{
+		p_temp_core = p_core[no_start + i];
+		*(n[i]) = p_temp_core->get_task_num();
+	}
+	return 0;
+}
+
+int multi_core::get_one_core_task(int core_no, int task_start_no, task** p, int num)
+{
+	p_temp_core = p_core[core_no];
+	if (p_temp_core->get_task(task_start_no, num, p))
+	{
+		return 1;
+	}
+	return 0;
+}
+
+int multi_core::get_core_task(int core_start_no, int core_num, task*** p, int* task_start_no, int* num)
+{
+	int i;
+	for (i = 0; i < core_num; i++)
+	{
+		p_temp_core = p_core[core_start_no + i];
+		if (p_temp_core->get_task(task_start_no[i], num[i], p[i]))
+		{
+			return 1;
+		}
+	}
+	return 0;
 }

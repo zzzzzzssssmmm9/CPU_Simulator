@@ -1,4 +1,5 @@
 #include "cpu.h";
+#include "main.h"
 using namespace std;
 
 int main()
