@@ -32,6 +32,7 @@ public:
 	int add_task(task* p, int n);
 	int get_one_task(int no, task* p_return);
 	int get_task(int start_no, int num, task** q);
+	int get_all_task(task** q, int* re_task_num);
 	int remove_one_task();
 	int remove_task(int n);
 	ttask* get_p_task_start();
@@ -60,12 +61,16 @@ public:
 	int remove_one_core_task(int no, int n);
 	int remove_core_task();
 	int get_one_core_task(int core_no, int task_start_no, task** p, int num);
+	int get_one_core_all_task(int core_no, task** q,int* re_task_num);
 	int get_core_task(int core_start_no, int core_num, task*** p, int* task_start_no, int* num);
+	int get_core_all_task(int* core_no, int get_core_num, task*** q, int** task_num);
+	int get_all_core_all_task(int* re_core_num, task*** q, int** task_num);
 	int get_one_core_task_num(int no, int* num);
 	int get_core_task_num(int no_start, int num, int** n);
 	ttask* get_one_core_p_task_start(int no);
 	ttask* get_one_core_p_task_end(int no);
 	ttask** get_p_task_start();
 	ttask** get_p_task_end();
+	core** get_p_core();
 	int get_core_num();
 };
