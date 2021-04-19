@@ -206,7 +206,7 @@ int core::get_all_task(task** q, int* re_task_num)
 	int i;
 	ttask* p_temp_ttask;
 	p_temp_ttask = p_task_start;
-	for(i=0; ; i++)
+	for(i=0; i < task_num ; i++)
 	{
 		p_temp_ttask = p_temp_ttask->p;
 		if (!p_temp_ttask)
@@ -219,7 +219,7 @@ int core::get_all_task(task** q, int* re_task_num)
 	return 0;
 }
 
-int core::remove_one_task()
+int core::remove_one_task(int model)
 {
 	ttask* p;
 	if (task_num > 0)
@@ -234,21 +234,33 @@ int core::remove_one_task()
 		{
 			p_task_start->p = p->p;
 			task_num--;
-			free(p);
+			if (model)
+			{
+				free(p);
+			}
 		}
 	}
 	return 0;
 }
 
-int core::remove_task(int n)
+int core::remove_task(int n, int model)
 {
 	int i;
 	for (i = 0; i < n; i++)
 	{
-		if (remove_one_task())
+		if (remove_one_task(model))
 		{
 			return 1;
 		}
+	}
+	return 0;
+}
+
+int core::remove_all_task(int model)
+{
+	if (remove_task(task_num, model))
+	{
+		return 1;
 	}
 	return 0;
 }
@@ -317,6 +329,14 @@ int multi_core::set_multi_core()
 	return 0;
 }
 
+int multi_core::set_core(int num, core** p)
+{
+	core_num = num;
+	p_core = p;
+	state = 1;
+	return 0;
+}
+
 int multi_core::release_one_core_res(int no, int num)
 {
 	p_temp_core = p_core[no];
@@ -368,10 +388,29 @@ int multi_core::add_task(int start_core_no, task** p, int core_num, int* n)
 int multi_core::remove_one_core_task(int no, int n)
 {
 	p_temp_core = p_core[no];
-	return p_temp_core->remove_task(n);
+	return p_temp_core->remove_task(n,0);
 }
 
 int multi_core::remove_core_task()
+{
+	return 0;
+}
+
+int multi_core::remove_core_all_task(int* core_no, int get_core_num)
+{
+	int i;
+	for (i = 0; i < get_core_num; i++)
+	{
+		p_temp_core = p_core[core_no[i]];
+		if (p_temp_core->remove_all_task(0))
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int multi_core::remove_one_core_all_task()
 {
 	return 0;
 }

@@ -33,8 +33,9 @@ public:
 	int get_one_task(int no, task* p_return);
 	int get_task(int start_no, int num, task** q);
 	int get_all_task(task** q, int* re_task_num);
-	int remove_one_task();
-	int remove_task(int n);
+	int remove_one_task(int model);         //model为1删除任务占用内存,0不删除
+	int remove_task(int n, int model);
+	int remove_all_task(int model);
 	ttask* get_p_task_start();
 	ttask* get_p_task_end();
 	int get_task_num();
@@ -51,6 +52,7 @@ public:
 	multi_core(int num, double L, double M, double H);
 	int set_multi_core_state_ratio(double L, double M, double H);     //目前仅能进行所有核心相同负载状态判断设置
 	int set_multi_core();
+	int set_core(int num, core** p);
 	int release_one_core_res(int no, int num);
 	int use_one_core_res(int no, int num);
 	int release_res();               //模拟释放处理器核心计算资源
@@ -60,6 +62,8 @@ public:
 	int add_task(int start_core_no, task** p, int core_num, int* n);
 	int remove_one_core_task(int no, int n);
 	int remove_core_task();
+	int remove_one_core_all_task();
+	int remove_core_all_task(int* core_no, int get_core_num);
 	int get_one_core_task(int core_no, int task_start_no, task** p, int num);
 	int get_one_core_all_task(int core_no, task** q,int* re_task_num);
 	int get_core_task(int core_start_no, int core_num, task*** p, int* task_start_no, int* num);

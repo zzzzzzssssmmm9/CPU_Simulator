@@ -23,3 +23,9 @@ struct ttask
 	task T;
 	ttask* p;
 };
+
+struct task_queue
+{
+	ttask T_Q;
+	int task_num;
+};

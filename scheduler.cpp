@@ -59,6 +59,31 @@ int schedule::get_core_task(multi_core m_c, int core_start_no, int core_num, tas
 	return 0;
 }
 
+int schedule::get_one_core_all_task(multi_core m_c, int core_no, task** q, int* re_task_num)
+{
+	m_c.get_one_core_all_task(core_no, q, re_task_num);
+	return 0;
+}
+
+int schedule::get_core_all_task(multi_core m_c, int* core_no, int get_core_num, task*** q, int** task_num)
+{
+	m_c.get_core_all_task(core_no, get_core_num, q, task_num);
+	return 0;
+}
+
+int schedule::get_task_queue(multi_core m_c, int* core_no, int get_core_num, task*** q, int** task_num)
+{
+	m_c.get_core_all_task(core_no, get_core_num, q, task_num);
+	m_c.remove_core_all_task(core_no, get_core_num);
+	return 0;
+}
+
+int schedule::get_all_core_all_task(multi_core m_c, int* re_core_num, task*** q, int** task_num)
+{
+	m_c.get_all_core_all_task(re_core_num, q, task_num);
+	return 0;
+}
+
 int schedule::sort_prio(task** p,int task_num)
 {
 	int i, z;
@@ -78,8 +103,24 @@ int schedule::sort_prio(task** p,int task_num)
 	return 0;
 }
 
-int schedule::get_cores()
+int schedule::get_cores(multi_core m_c, multi_core** re_m_c)
 {
+	core*** p_temp_divide_core;
+	int i, z, core_num;
+	multi_core* p_temp_multi_core;
+	core_num = m_c.get_core_num();
+	p_temp_divide_core = new core ** [4];
+	for (i = 0; i < 4; i++)
+	{
+		p_temp_divide_core[i] = new core * [1024];
+	}
+	divide_multi_core(m_c, p_temp_divide_core);
+	for (i = 0; i < 4; i++)
+	{
+		p_temp_multi_core = new multi_core;
+		p_temp_multi_core->set_core(core_num / 4, p_temp_divide_core[i]);
+		re_m_c[i] = p_temp_multi_core;
+	}
 	return 0;
 }
 
@@ -140,7 +181,6 @@ int schedule::divide_multi_core(multi_core m_c, core*** re_divide_core)
 				{
 					re_divide_core[0][x] = p_temp_core[i];
 					re_divide_core[2][x++] = p_temp_core[i + (core_num / 2)];
-
 				}
 			}
 			else
@@ -170,8 +210,87 @@ int schedule::get_multi_core_order(multi_core m_c)
 	return m.get_2_order(m_c.get_core_num());
 }
 
-int schedule::Insert_task(task** p, task* t)
+int schedule::Insert_task(task** p, int* task_num, task* t)
 {
+	p[(*task_num)++] = t;
+	return 0;
+}
 
+int schedule::DivQuadrants(task*** p_task, int* task_num)
+{
+	int i;
+	task** p_temp_task;
+	p_task = new task * *[4];
+	task_num = new int[4];
+	for (i = 0; i < 4; i++)
+	{
+		p_temp_task = new task * [1024];
+		p_task[i] = p_temp_task;
+		task_num[i] = 0;
+	}
+	return 0;
+}
+
+int schedule::get_height_core(multi_core m_c, int* no)
+{
+	int i, z = 0;
+	int core_num = m_c.get_core_num();
+	core** p_core = m_c.get_p_core();
+	for (i = 0; i < core_num; i++)
+	{
+		if (check_core_statu(*p_core[i]))
+		{
+			no[z++] = i;
+		}
+	}
+	return 0;
+}
+
+int schedule::check_core_statu(core c)        //通过设置重载情况比例来设置重载情况
+{
+	if (c.check_state() >= 3)
+	{
+		return 1;
+	}
+	return 0;
+}
+
+int schedule::trimTask(task** p, int* task_num, task** p_h, int* task_num_h, int res_dif_v)
+{
+	int i;
+	int* re_task_no;
+	re_task_no = new int;
+	sort_prio(p, *task_num);
+	while (res_dif_v > 0)
+	{
+		res_dif_v -= p[--(*task_num)]->get_com();
+		p_h[(*task_num_h)++] = p[(*task_num)];
+		p[(*task_num)] = NULL;
+	}
+	return 0;
+}
+
+int schedule::get_low_class_task(task** p, int* task_num, int* re_task_no)
+{
+	int i, min_prio, min_prio_loc, temp_min_prio;
+	min_prio = (*p[0]).get_prio();
+	min_prio_loc = 0;
+	for (i = 0; i < *task_num; i++)
+	{
+		temp_min_prio = (*p[i]).get_prio();
+		if (temp_min_prio < min_prio)
+		{
+			min_prio = temp_min_prio;
+			min_prio_loc = i;
+		}
+	}
+	*re_task_no = min_prio_loc;
+	return 0;
+}
+
+int schedule::migrateTask(task*** p_task, int* task_num, multi_core** re_m_c)
+{
+	int i;
+	
 	return 0;
 }
