@@ -28,8 +28,8 @@ public:
 	int check_state();                   //¼ì²é×´Ì¬
 	int set_state_ratio(double L, double M, double H);               //ÉèÖÃ×´Ì¬±ÈÀı
 	int set_state();
-	int add_one_task(task t);
-	int add_task(task* p, int n);
+	int add_one_task(task t, int core_no);
+	int add_task(task* p, int n, int core_no);
 	int get_one_task(int no, task* p_return);
 	int get_task(int start_no, int num, task** q);
 	int get_all_task(task** q, int* re_task_num);

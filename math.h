@@ -18,4 +18,8 @@ public:
 	int get_j_for_DLBQ(int num);
 	int get_q_for_DLBQ(int num, int* re_num);
 	int get_empty_core_location(int* num, int core_j, int* re_num, int core_i);
+	int get_line_on_even_k(int core_num, int i, int j);
+	int get_column_on_even_k(int core_num, int i, int j);
+	int get_line_on_odd_k(int core_num, int i, int j);
+	int get_column_on_odd_k(int core_num, int i, int j);
 };

@@ -145,3 +145,78 @@ int math::get_empty_core_location(int* num, int core_j, int* re_num, int core_i)
 	}
 	return 0;
 }
+
+int math::get_line_on_even_k(int core_num, int i, int j)
+{
+	int line = 0;
+	while (core_num >= i)
+	{
+		line++;
+		core_num -= i;
+	}
+	return line;
+}
+
+int math::get_column_on_even_k(int core_num, int i, int j)
+{
+	int column = 0;
+	while (core_num >= i)
+	{
+		core_num -= i;
+	}
+	column = core_num;
+	return column;
+}
+
+int math::get_line_on_odd_k(int core_num, int i, int j)
+{
+	int line = 0, temp_i=0;
+	int num = j * 8;
+	while (core_num >= num)
+	{
+		temp_i++;
+		core_num -= num;
+	}
+	if (core_num < i)
+	{
+		line = temp_i * 3;
+	}
+	else if (core_num < 2 * i - j)
+	{
+		line = temp_i + 3 + 1;
+	}
+	else
+	{
+		line = temp_i * 3 + 2;
+	}
+	return line;
+}
+
+int math::get_column_on_odd_k(int core_num, int i, int j)
+{
+	int colum = 0;
+	int num = j * 8;
+	while (core_num >= num)
+	{
+		core_num -= num;
+	}
+	if (core_num < i)
+	{
+		colum = core_num;
+	}
+	else if (core_num < 2 * i - j)
+	{
+		core_num -= i;
+		while (core_num >= 2)
+		{
+			colum += 3;
+			core_num -= 2;
+		}
+		colum += core_num * 2;
+	}
+	else
+	{
+		colum = core_num - 2 * i + j;
+	}
+	return colum;
+}

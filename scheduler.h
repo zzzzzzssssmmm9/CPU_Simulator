@@ -35,8 +35,10 @@ public:
 	int trimTask(task** p, int* task_num, task** p_h, int* task_num_h, int res_dif_v);
 	int get_low_class_task(task** p, int* task_num, int* re_task_no);
 	int task_sort_low(task** p, int* task_num);     //sortpriority
-	int move_task();
-	int migrateTask(task*** p_task, int* task_num, multi_core** re_m_c);
+	int move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, core** p_core);
+	int migrateTask(task** p_task, int task_num, multi_core* re_m_c, multi_core m_c);
+	int move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, core ** p_core);
+	int get_core_qua(int no, multi_core m_c);
 	int Linux_load_balance_schedule();
 	int DLBQ_load_balance_schedule();
 	int Base_load_balance_schedule();
