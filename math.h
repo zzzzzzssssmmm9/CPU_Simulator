@@ -2,6 +2,7 @@
 #pragma once
 #include <stdlib.h>
 #include <stdio.h>
+#include <cstdlib>
 
 class math
 {
@@ -22,4 +23,5 @@ public:
 	int get_column_on_even_k(int core_num, int i, int j);
 	int get_line_on_odd_k(int core_num, int i, int j);
 	int get_column_on_odd_k(int core_num, int i, int j);
+	int get_random(int n);
 };

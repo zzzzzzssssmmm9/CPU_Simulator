@@ -30,6 +30,7 @@ public:
 	int set_state();
 	int add_one_task(task t, int core_no);
 	int add_task(task* p, int n, int core_no);
+	int add_task_p(task** p, int n, int core_no);
 	int get_one_task(int no, task* p_return);
 	int get_task(int start_no, int num, task** q);
 	int get_all_task(task** q, int* re_task_num);
@@ -39,6 +40,8 @@ public:
 	ttask* get_p_task_start();
 	ttask* get_p_task_end();
 	int get_task_num();
+	int get_state();
+	int get_com_res_re();
 };
 
 class multi_core                     //core不能超过2的10次幂
@@ -77,4 +80,5 @@ public:
 	ttask** get_p_task_end();
 	core** get_p_core();
 	int get_core_num();
+	int get_multi_core_res_re();
 };

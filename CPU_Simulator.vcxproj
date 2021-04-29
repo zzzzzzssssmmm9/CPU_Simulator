@@ -114,8 +114,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <WarningLevel>Level2</WarningLevel>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
@@ -150,6 +150,7 @@
     <ClCompile Include="random.cpp" />
     <ClCompile Include="scheduler.cpp" />
     <ClCompile Include="Storage.cpp" />
+    <ClCompile Include="system.cpp" />
     <ClCompile Include="task.cpp" />
     <ClCompile Include="task_schedule.cpp" />
     <ClCompile Include="thread.cpp" />

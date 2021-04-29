@@ -134,6 +134,11 @@ int core::set_state()
 	return 0;
 }
 
+int core::get_state()
+{
+	return state;
+}
+
 int core::add_one_task(task t, int core_no)
 {
 	ttask* p;
@@ -161,6 +166,19 @@ int core::add_task(task* p, int n, int core_no)       //返回有几个任务分配失败
 	for (i = 0; i < n; i++)
 	{
 		if (add_one_task(p[i], core_no))
+		{
+			return n - i;
+		}
+	}
+	return 0;
+}
+
+int core::add_task_p(task** p, int n, int core_no)       //返回有几个任务分配失败
+{
+	int i;
+	for (i = 0; i < n; i++)
+	{
+		if (add_one_task(*(p[i]), core_no))
 		{
 			return n - i;
 		}
@@ -214,7 +232,10 @@ int core::get_all_task(task** q, int* re_task_num)
 		{
 			break;
 		}
-		q[i] = &(p_temp_ttask->T);
+		if ((p_temp_ttask->T).get_prio() != 0)
+		{
+			q[i] = &(p_temp_ttask->T);
+		}
 	}
 	*re_task_num = task_num;
 	return 0;
@@ -279,6 +300,11 @@ ttask* core::get_p_task_end()
 int core::get_task_num()
 {
 	return task_num;
+}
+
+int core::get_com_res_re()
+{
+	return comput_res_re;
 }
 
 multi_core::multi_core()
@@ -546,4 +572,16 @@ int multi_core::get_all_core_all_task(int* re_core_num, task*** q, int** task_nu
 core** multi_core::get_p_core()
 {
 	return p_core; 
+}
+
+int multi_core::get_multi_core_res_re()
+{
+	int i, res_re=0;
+	core* temp_p_core;
+	for (i = 0; i < core_num; i++)
+	{
+		temp_p_core = p_core[i];
+		res_re += temp_p_core->get_com_res_re();
+	}
+	return res_re;
 }

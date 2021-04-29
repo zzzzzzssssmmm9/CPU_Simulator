@@ -73,7 +73,7 @@ int math::get_2_order(int num)
 	int i, z = 1;
 	if (num == 1)
 	{
-		return 0;
+		return 1;
 	}
 	for (i = 2;; i*2, z++)
 	{
@@ -146,7 +146,7 @@ int math::get_empty_core_location(int* num, int core_j, int* re_num, int core_i)
 	return 0;
 }
 
-int math::get_line_on_even_k(int core_num, int i, int j)
+int math::get_line_on_even_k(int core_num, int i, int j)       //core_num : core_no
 {
 	int line = 0;
 	while (core_num >= i)
@@ -219,4 +219,9 @@ int math::get_column_on_odd_k(int core_num, int i, int j)
 		colum = core_num - 2 * i + j;
 	}
 	return colum;
+}
+
+int math::get_random(int n)
+{
+	return (rand() % n);
 }
