@@ -49,3 +49,27 @@ int task::set_core_no(int no)
 	core_no = no;
 	return 0;
 }
+
+int task::set_run_time(int time)
+{
+	task_time = time;
+	return 0;
+}
+
+int task::set_com(int com)
+{
+	task_com = com;
+	return 0;
+}
+
+int task::set_prio(int prio)
+{
+	task_prio = prio;
+	return 0;
+}
+
+int task::set_id(int id)
+{
+	task_ID = id;
+	return 0;
+}

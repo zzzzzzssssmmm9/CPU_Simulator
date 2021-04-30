@@ -75,7 +75,7 @@ int math::get_2_order(int num)
 	{
 		return 1;
 	}
-	for (i = 2;; i*2, z++)
+	for (i = 2;; i*=2, z++)
 	{
 		if (num == i)
 		{
@@ -223,5 +223,6 @@ int math::get_column_on_odd_k(int core_num, int i, int j)
 
 int math::get_random(int n)
 {
+	srand((int)time(0));
 	return (rand() % n);
 }

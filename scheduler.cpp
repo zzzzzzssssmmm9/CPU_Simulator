@@ -98,7 +98,7 @@ int schedule::sort_prio(task** p,int task_num)       //优先级按照降序排�
 	{
 		for (z = 0; z < task_num - i - 1; z++)
 		{
-			if ((*(p[z])).get_prio() < (*(p[z + 1])).get_prio())
+			if ((p[z])->get_prio() < (p[z + 1])->get_prio())
 			{
 				p_temp_task = p[z];
 				p[z] = p[z + 1];
@@ -117,7 +117,7 @@ int schedule::get_task_pp(task*** q, int** task_num, int core_num, task** p, int
 	{
 		for (z = 0; z < *(task_num[i]); z++)
 		{
-			p[*(task_n)++] = q[i][z];
+			p[(*task_n)++] = q[i][z];
 		}
 	}
 	return 0;
@@ -216,7 +216,7 @@ int schedule::get_one_task_run_time(task* p, int* re_run_time)
 
 int schedule::divide_multi_core(multi_core m_c, core*** re_divide_core)
 {
-	int i, n = 0, x = 0, z = 0;
+	int i, n = 0, x = 0, z = 0, temp_core_no = 0, temp_empty_core_no = 0;
 	math m;
 	core** p_temp_core=m_c.get_p_core();
 	int core_num = m_c.get_core_num();
@@ -228,21 +228,37 @@ int schedule::divide_multi_core(multi_core m_c, core*** re_divide_core)
 		core_num_j = m.get_j_for_DLBQ(core_num_order);
 		int empty_core[1024];                          //这里把空位核心数写死了
 		int empty_core_location[1024];
-		m.get_q_for_DLBQ(core_num, empty_core);
+		m.get_q_for_DLBQ(core_num_order, empty_core);
 		m.get_empty_core_location(empty_core, core_num_j, empty_core_location, core_num_i);
 		if (core_num > 8)
 		{
-			for (i = 0; i < (core_num / 2); i++)
+			for (i = 0; i < ((core_num_i * core_num_i) / 2); i++)
 			{
 				if (i % core_num_i < core_num_i / 2)
 				{
-					re_divide_core[1][x] = p_temp_core[i];
-					re_divide_core[2][x++] = p_temp_core[i + (core_num / 2)];
+					if (i == empty_core_location[temp_empty_core_no])
+					{
+						temp_empty_core_no++;
+					}
+					else 
+					{
+						re_divide_core[1][x] = p_temp_core[temp_core_no];
+						re_divide_core[2][x++] = p_temp_core[temp_core_no + (core_num / 2)];
+						temp_core_no++;
+					}
 				}
 				else
 				{
-					re_divide_core[0][z] = p_temp_core[i];
-					re_divide_core[3][z++] = p_temp_core[i + (core_num / 2)];
+					if (i == empty_core_location[temp_empty_core_no])
+					{
+						temp_empty_core_no++;
+					}
+					else
+					{
+						re_divide_core[0][z] = p_temp_core[temp_core_no];
+						re_divide_core[3][z++] = p_temp_core[temp_core_no + (core_num / 2)];
+						temp_core_no++;
+					}
 				}
 			}
 		}
@@ -260,13 +276,13 @@ int schedule::divide_multi_core(multi_core m_c, core*** re_divide_core)
 				if (i % core_num_i < core_num_i / 2)
 				{
 					
-					re_divide_core[0][x] = p_temp_core[i];
+					re_divide_core[1][x] = p_temp_core[i];
 					re_divide_core[2][x++] = p_temp_core[i + (core_num / 2)];
 				}
 				else
 				{
-					re_divide_core[1][z] = p_temp_core[i];
-					re_divide_core[3][z] = p_temp_core[i + (core_num / 2)];
+					re_divide_core[0][z] = p_temp_core[i];
+					re_divide_core[3][z++] = p_temp_core[i + (core_num / 2)];
 				}
 			}
 		}
@@ -1081,6 +1097,15 @@ int schedule::load_balance_to_two_core(multi_core* m_c)        //在面对只有
 	p = new task * [2048];
 	int core_no[2] = { 0,1 };
 	int have_height_core = 0;
+	task** p_temp_task;
+	qua_task = new task * *[2];
+	qua_task_num = new int[2];
+	for (i = 0; i < 2; i++)
+	{
+		p_temp_task = new task * [1024];
+		qua_task[i] = p_temp_task;
+		qua_task_num[i] = 0;
+	}
 	pp_temp_core = (*m_c).get_p_core();
 	for (i = 0; i < 2; i++)
 	{
@@ -1101,7 +1126,7 @@ int schedule::load_balance_to_two_core(multi_core* m_c)        //在面对只有
 		get_task_queue((*m_c), core_no, 2, q, task_num);
 		get_task_pp(q, task_num, 2, p, task_n);
 		sort_prio(p, *task_n);
-		DivQuadrants_2(qua_task, qua_task_num);
+		//DivQuadrants_2(qua_task, qua_task_num);
 		temp_pp_task_num = (*task_n);
 		while (*task_n > 0)
 		{
@@ -1149,6 +1174,7 @@ int schedule::DLBQ_load_balance_schedule(multi_core* m_c)
 	p = new task * [1048576];
 	int* task_n;
 	task_n = new int;
+	*task_n = 0;
 	q = new task * *[1024];
 	int** task_num;
 	int* temp_task_num;
@@ -1159,6 +1185,15 @@ int schedule::DLBQ_load_balance_schedule(multi_core* m_c)
 	int temp_qua_task_com_res = 0;
 	int temp_res_dif_v;
 	int have_height_core = 0;
+	task** p_temp_task;
+	qua_task = new task * *[4];
+	qua_task_num = new int[4];
+	for (i = 0; i < 4; i++)
+	{
+		p_temp_task = new task * [1024];
+		qua_task[i] = p_temp_task;
+		qua_task_num[i] = 0;
+	}
 	multi_core_num = (*m_c).get_core_num();
 	if (multi_core_num == 8)
 	{
@@ -1196,7 +1231,7 @@ int schedule::DLBQ_load_balance_schedule(multi_core* m_c)
 		get_task_pp(q, task_num, h_core_num, p, task_n);
 		sort_prio(p, *task_n);
 		get_cores((*m_c), re_m_c);
-		DivQuadrants(qua_task, qua_task_num);
+		//DivQuadrants(qua_task, qua_task_num);
 		temp_pp_task_num = (*task_n);
 		while (*task_n > 0)
 		{
@@ -1221,6 +1256,7 @@ int schedule::DLBQ_load_balance_schedule(multi_core* m_c)
 		for (i = 0; i < 4; i++)
 		{
 			DLBQ_load_balance_schedule(re_m_c[i]);
+
 		}
 	}
 	else
@@ -1258,6 +1294,15 @@ int schedule::Base_load_balance_schedule(multi_core* m_c)
 	int temp_qua_task_com_res = 0;
 	int temp_res_dif_v;
 	int have_height_core = 0;
+	task** p_temp_task;
+	qua_task = new task * *[4];
+	qua_task_num = new int[4];
+	for (i = 0; i < 4; i++)
+	{
+		p_temp_task = new task * [1024];
+		qua_task[i] = p_temp_task;
+		qua_task_num[i] = 0;
+	}
 	multi_core_num = (*m_c).get_core_num();
 	if (multi_core_num == 8)
 	{
@@ -1295,7 +1340,7 @@ int schedule::Base_load_balance_schedule(multi_core* m_c)
 		get_task_pp(q, task_num, h_core_num, p, task_n);
 		sort_prio(p, *task_n);
 		get_cores((*m_c), re_m_c);
-		DivQuadrants(qua_task, qua_task_num);
+		//DivQuadrants(qua_task, qua_task_num);
 		temp_pp_task_num = (*task_n);
 		while (*task_n > 0)
 		{

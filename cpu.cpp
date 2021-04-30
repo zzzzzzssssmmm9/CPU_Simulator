@@ -52,6 +52,12 @@ int core::set_core()
 	return 0;
 }
 
+int core::set_comput(int com)
+{
+	computing_resource = comput_res_re = com;
+	return 0;
+}
+
 int core::release_one_res()
 {
 	if (comput_res_use > 0)
@@ -146,12 +152,15 @@ int core::add_one_task(task t, int core_no)
 	{
 		p = new ttask;
 		p->T = t;
-		t.set_core_no(core_no);
+		p->T.set_core_no(core_no);
 		p->p = NULL;
 		p_task_end->p = p;
 		p_task_end = p_task_end->p;
 		task_num++;
-		use_res(t.get_com());
+		if (t.get_prio() != 0)
+		{
+			use_res(t.get_com());
+		}
 		return 0;
 	}
 	else
@@ -222,9 +231,10 @@ int core::get_task(int start_no, int num, task** q)
 
 int core::get_all_task(task** q, int* re_task_num)
 {
-	int i;
+	int i, z=0;
 	ttask* p_temp_ttask;
 	p_temp_ttask = p_task_start;
+	*re_task_num = 0;
 	for(i=0; i < task_num ; i++)
 	{
 		p_temp_ttask = p_temp_ttask->p;
@@ -234,10 +244,10 @@ int core::get_all_task(task** q, int* re_task_num)
 		}
 		if ((p_temp_ttask->T).get_prio() != 0)
 		{
-			q[i] = &(p_temp_ttask->T);
+			q[z++] = &(p_temp_ttask->T);
+			(*re_task_num)++;
 		}
 	}
-	*re_task_num = task_num;
 	return 0;
 }
 
@@ -247,18 +257,21 @@ int core::remove_one_task(int model)
 	if (task_num > 0)
 	{
 		p = p_task_start->p;
-		if (release_res(p->T.get_com()))
+		if (p->T.get_prio() != 0)
 		{
-			printf("CPU remove task error ( use resoure not enough\n )");
-			return 1;
-		}
-		else
-		{
-			p_task_start->p = p->p;
-			task_num--;
-			if (model)
+			if (release_res(p->T.get_com()))
 			{
-				free(p);
+				printf("CPU remove task error ( use resoure not enough )\n");
+				return 1;
+			}
+			else
+			{
+				p_task_start->p = p->p;
+				task_num--;
+				if (model)
+				{
+					free(p);
+				}
 			}
 		}
 	}
@@ -305,6 +318,21 @@ int core::get_task_num()
 int core::get_com_res_re()
 {
 	return comput_res_re;
+}
+
+int core::get_com_res_use()
+{
+	return comput_res_use;
+}
+
+int core::get_comput()
+{
+	return computing_resource;
+}
+
+int core::display()
+{
+	return 0;
 }
 
 multi_core::multi_core()

@@ -19,6 +19,10 @@ public:
 	int get_prio();
 	int get_core_no();
 	int set_core_no(int no);
+	int set_run_time(int time);
+	int set_com(int com);
+	int set_prio(int prio);
+	int set_id(int id);
 };
 
 struct ttask

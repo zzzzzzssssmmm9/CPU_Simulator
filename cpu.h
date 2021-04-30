@@ -21,6 +21,7 @@ public:
 	core();
 	core(int num, double L, double M, double H);
 	int set_core();
+	int set_comput(int com);
 	int release_one_res();               //模拟释放处理器核心计算资源
 	int use_one_res();                   //模拟消耗处理器核心计算资源
 	int release_res(int n);              //返回剩余未释放的量
@@ -42,6 +43,9 @@ public:
 	int get_task_num();
 	int get_state();
 	int get_com_res_re();
+	int get_com_res_use();
+	int get_comput();
+	int display();
 };
 
 class multi_core                     //core不能超过2的10次幂
