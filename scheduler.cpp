@@ -435,6 +435,8 @@ int schedule::migrateTask(task** p_task, int task_num, multi_core** re_m_c, mult
 {
 	int i;
 	int task_qua, task_core_no;
+	int move_dis = 0;
+	int move_num = 0;
 	int multi_core_have_core_num;
 	multi_core_have_core_num = m_c.get_core_num();
 	if (multi_core_have_core_num != 8 && multi_core_have_core_num != 1 && multi_core_have_core_num != 2)
@@ -443,9 +445,31 @@ int schedule::migrateTask(task** p_task, int task_num, multi_core** re_m_c, mult
 		{
 			task_core_no = (*(p_task[i])).get_core_no();
 			task_qua = get_core_qua(task_core_no, m_c);
-			move_task(m_c, p_task[i], task_qua, core_qua, (re_m_c[core_qua])->get_p_core());
+			move_task(m_c, p_task[i], task_qua, core_qua, (re_m_c[core_qua])->get_p_core(), &move_dis, &move_num);
 		}
 	}
+	printf("move num: %d move dis: %d\n", move_num, move_dis);
+	return 0;
+}
+
+int schedule::migrateTask_B(task** p_task, int task_num, multi_core** re_m_c, multi_core m_c, int core_qua)
+{
+	int i;
+	int task_qua, task_core_no;
+	int move_dis = 0;
+	int move_num = 0;
+	int multi_core_have_core_num;
+	multi_core_have_core_num = m_c.get_core_num();
+	if (multi_core_have_core_num != 8 && multi_core_have_core_num != 1 && multi_core_have_core_num != 2)
+	{
+		for (i = 0; i < task_num; i++)
+		{
+			task_core_no = (*(p_task[i])).get_core_no();
+			task_qua = get_core_qua(task_core_no, m_c);
+			move_task_B(m_c, p_task[i], task_qua, core_qua, (re_m_c[core_qua])->get_p_core(), &move_dis, &move_num);
+		}
+	}
+	printf("move num: %d move dis: %d\n", move_num, move_dis);
 	return 0;
 }
 
@@ -583,7 +607,7 @@ int schedule::get_core_qua(int no, multi_core m_c)
 	return -1;
 }
 
-int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, core** p_core)
+int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, core** p_core, int* move_dis, int* move_num)
 {
 	math m;
 	int z, line, colum, no = 0;
@@ -593,6 +617,7 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 	int core_order = m.get_2_order(core_num);
 	int i = m.get_i_for_DLBQ(core_order);
 	int j = m.get_j_for_DLBQ(core_order);
+	(*move_num)++;
 	if (core_order % 2 == 0)
 	{
 		line = m.get_line_on_even_k(core_no, i, j);
@@ -603,19 +628,24 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 			{
 				no = line * (i / 2);
 				no = no + colum - (i / 2);
+				(*move_dis) += 0;
+				(*move_num)--;
 			}
 			else if (to_qua == 1)
 			{
 				no = (line + 1) * (i / 2);
 				no -= 1;
+				(*move_dis) += (colum - (i / 2) + 1);
 			}
 			else if (to_qua == 2)
 			{
 				no = i / 2 - 1;
+				(*move_dis) += (colum - (i / 2) + 1 + (i / 2) - line);
 			}
 			else if (to_qua == 3)
 			{
 				no = colum - (i / 2);
+				(*move_dis) += ((i / 2) - line);
 			}
 		}
 		else if (from_qua == 1)
@@ -623,19 +653,24 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 			if (to_qua == 0)
 			{
 				no = line * (i / 2);
+				(*move_dis) += ((i / 2) - colum);
 			}
 			else if (to_qua == 1)
 			{
 				no = line * (i / 2);
 				no = no + colum;
+				(*move_dis) += 0;
+				(*move_num)--;
 			}
 			else if (to_qua == 2)
 			{
 				no = colum;
+				(*move_dis) += ((i / 2) - line);
 			}
 			else if (to_qua == 3)
 			{
 				no = 0;
+				(*move_dis) += (2 * (i / 2) - line - colum);
 			}
 		}
 		else if (from_qua == 2)
@@ -643,20 +678,25 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 			if (to_qua == 0)
 			{
 				no = (i / 2) * ((i / 2) - 1);
+				(*move_dis) += (line - (i / 2) + 1 + (i / 2) - colum);
 			}
 			else if (to_qua == 1)
 			{
 				no = (i / 2) * ((i / 2) - 1);
 				no += colum;
+				(*move_dis) += (line - (i / 2) + 1);
 			}
 			else if (to_qua == 2)
 			{
 				no = (line - (i / 2)) * (i / 2);
 				no += colum;
+				(*move_dis) += 0;
+				(*move_num)--;
 			}
 			else if (to_qua == 3)
 			{
 				no = (line - (i / 2)) * (i / 2);
+				(*move_dis) += ((i / 2) - colum);
 			}
 		}
 		else if (from_qua == 3)
@@ -665,20 +705,25 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 			{
 				no = (i / 2) * ((i / 2) - 1);
 				no = no + colum - (i / 2);
+				(*move_dis) += (line - (i / 2) + 1);
 			}
 			else if (to_qua == 1)
 			{
 				no = (i / 2) * (i / 2) - 1;
+				(*move_dis) += (line - (i / 2) + 1 + colum - (i / 2) + 1);
 			}
 			else if (to_qua == 2)
 			{
 				no = (1 + (line - (i / 2))) * (i / 2);
 				no -= 1;
+				(*move_dis) += (colum - (i / 2) + 1);
 			}
 			else if (to_qua == 3)
 			{
 				no = (line - (i / 2)) * (i / 2);
 				no = no + colum - (i / 2);
+				(*move_dis) += 0;
+				(*move_num)--;
 			}
 		}
 	}
@@ -719,6 +764,8 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 					no = no + 2 * (i / 2) - (j / 2);
 					no = no + colum - (i / 2);
 				}
+				(*move_dis) += 0;
+				(*move_num)--;
 			}
 			else if (to_qua == 1)
 			{
@@ -741,14 +788,17 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 				{
 					no = no + (j / 2) * 8 - 1;
 				}
+				(*move_dis) += (colum - (i / 2) + 1);
 			}
 			else if (to_qua == 2)
 			{
 				no = (i / 2) - 1;
+				(*move_dis) += (colum - (i / 2) + 1 + (i / 2) - line);
 			}
 			else if (to_qua == 3)
 			{
 				no = colum - (i / 2);
+				(*move_dis) += ((i / 2) - line);
 			}
 		}
 		else if (from_qua == 1)
@@ -774,6 +824,7 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 					no = no + (i / 2);
 					no = no + (j / 2) * 2;
 				}
+				(*move_dis) += ((i / 2) - colum);
 			}
 			else if (to_qua == 1)
 			{
@@ -805,14 +856,18 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 					no = no + (i / 2) * 2 - (j / 2);
 					no += colum;
 				}
+				(*move_dis) += 0;
+				(*move_num)--;
 			}
 			else if (to_qua == 2)
 			{
 				no = colum;
+				(*move_dis) += ((i / 2) - line);
 			}
 			else if (to_qua == 3)
 			{
 				no = 0;
+				(*move_dis) += (2 * (i / 2) - line - colum);
 			}
 		}
 		else if (from_qua == 2)
@@ -821,12 +876,14 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 			{
 				no = (j / 2) * (j / 2) * 8;
 				no -= (i / 2);
+				(*move_dis) += (line - (i / 2) + 1 + (i / 2) - colum);
 			}
 			else if (to_qua == 1)
 			{
 				no = (j / 2) * (j / 2) * 8;
 				no -= (i / 2);
 				no += colum;
+				(*move_dis) += (line - (i / 2) + 1);
 			}
 			else if (to_qua == 2)
 			{
@@ -859,6 +916,8 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 					no = no + (i / 2) * 2 - (j / 2);
 					no += colum;
 				}
+				(*move_dis) += 0;
+				(*move_num)--;
 			}
 			else if (to_qua == 3)
 			{
@@ -882,6 +941,7 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 					no = no + (i / 2);
 					no = no + (j / 2) * 2;
 				}
+				(*move_dis) += ((i / 2) - colum);
 			}
 		}
 		else if (from_qua == 3)
@@ -891,11 +951,13 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 				no = (j / 2) * (j / 2) * 8;
 				no -= (i / 2);
 				no = no + colum - (i / 2);
+				(*move_dis) += (line - (i / 2) + 1);
 			}
 			else if (to_qua == 1)
 			{
 				no = (j / 2) * (j / 2) * 8;
 				no--;
+				(*move_dis) += (line - (i / 2) + 1 + colum - (i / 2) + 1);
 			}
 			else if (to_qua == 2)
 			{
@@ -918,6 +980,7 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 				{
 					no += (j / 2) * 8 - 1;
 				}
+				(*move_dis) += (colum - (i / 2) + 1);
 			}
 			else if (to_qua == 3)
 			{
@@ -951,10 +1014,197 @@ int schedule::move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, 
 					no = no + (i / 2) * 2 - (j / 2);
 					no = no + colum - (i / 2);
 				}
+				(*move_dis) += 0;
+				(*move_num)--;
 			}
 		}
 	}
 	p_core[no]->add_one_task(*p_task, no);
+	return 0;
+}
+
+int schedule::move_task_B(multi_core m_c, task* p_task, int from_qua, int to_qua, core** p_core, int* move_dis, int* move_num)
+{
+	math m;
+	int z, line, colum;
+	int temp_line = 0, temp_colum = 0;
+	int core_no = p_task->get_core_no();
+	int core_num = m_c.get_core_num();
+	int core_order = m.get_2_order(core_num);
+	int i = m.get_i_for_DLBQ(core_order);
+	int j = m.get_j_for_DLBQ(core_order);
+	(*move_num)++;
+	if (core_order % 2 == 0)
+	{
+		line = m.get_line_on_even_k(core_no, i, j);
+		colum = m.get_column_on_even_k(core_no, i, j);
+		if (from_qua == 0)
+		{
+			if (to_qua == 0)
+			{
+				(*move_dis) += 0;
+				(*move_num)--;
+			}
+			else if (to_qua == 1)
+			{
+				(*move_dis) += (line + colum);
+			}
+			else if (to_qua == 2)
+			{
+				(*move_dis) += (colum + (i / 2) - line);
+			}
+			else if (to_qua == 3)
+			{
+				(*move_dis) += (colum - (i / 2) + (i / 2) - line);
+			}
+		}
+		else if (from_qua == 1)
+		{
+			if (to_qua == 0)
+			{
+				(*move_dis) += (line + (i / 2) - colum);
+			}
+			else if (to_qua == 1)
+			{
+				(*move_dis) += 0;
+				(*move_num)--;
+			}
+			else if (to_qua == 2)
+			{
+				(*move_dis) += (colum + (i / 2) - line);
+			}
+			else if (to_qua == 3)
+			{
+				(*move_dis) += ((i / 2) - line + (i / 2) - colum);
+			}
+		}
+		else if (from_qua == 2)
+		{
+			if (to_qua == 0)
+			{
+				(*move_dis) += (line + (i / 2) - colum);
+			}
+			else if (to_qua == 1)
+			{
+				(*move_dis) += (line + colum);
+			}
+			else if (to_qua == 2)
+			{
+				(*move_dis) += 0;
+				(*move_num)--;
+			}
+			else if (to_qua == 3)
+			{
+				(*move_dis) += (line - (i / 2) + (i / 2) - colum);
+			}
+		}
+		else if (from_qua == 3)
+		{
+			if (to_qua == 0)
+			{
+				(*move_dis) += (line + colum - (i / 2));
+			}
+			else if (to_qua == 1)
+			{
+				(*move_dis) += (line + colum);
+			}
+			else if (to_qua == 2)
+			{
+				(*move_dis) += (line - (i / 2) + colum);
+			}
+			else if (to_qua == 3)
+			{
+				(*move_dis) += 0;
+				(*move_num)--;
+			}
+		}
+	}
+	else
+	{
+		line = m.get_line_on_odd_k(core_no, i, j);
+		colum = m.get_column_on_odd_k(core_no, i, j);
+		if (from_qua == 0)
+		{
+			if (to_qua == 0)
+			{
+				(*move_dis) += 0;
+				(*move_num)--;
+			}
+			else if (to_qua == 1)
+			{
+				(*move_dis) += (line + colum);
+			}
+			else if (to_qua == 2)
+			{
+				(*move_dis) += (colum + (i / 2) - line);
+			}
+			else if (to_qua == 3)
+			{
+				(*move_dis) += (colum - (i / 2) + (i / 2) - line);
+			}
+		}
+		else if (from_qua == 1)
+		{
+			if (to_qua == 0)
+			{
+				(*move_dis) += (line + (i / 2) - colum);
+			}
+			else if (to_qua == 1)
+			{
+				(*move_dis) += 0;
+				(*move_num)--;
+			}
+			else if (to_qua == 2)
+			{
+				(*move_dis) += (colum + (i / 2) - line);
+			}
+			else if (to_qua == 3)
+			{
+				(*move_dis) += ((i / 2) - line + (i / 2) - colum);
+			}
+		}
+		else if (from_qua == 2)
+		{
+			if (to_qua == 0)
+			{
+				(*move_dis) += (line + (i / 2) - colum);
+			}
+			else if (to_qua == 1)
+			{
+				(*move_dis) += (line + colum);
+			}
+			else if (to_qua == 2)
+			{
+				(*move_dis) += 0;
+				(*move_num)--;
+			}
+			else if (to_qua == 3)
+			{
+				(*move_dis) += (line - (i / 2) + (i / 2) - colum);
+			}
+		}
+		else if (from_qua == 3)
+		{
+			if (to_qua == 0)
+			{
+				(*move_dis) += (line + colum - (i / 2));
+			}
+			else if (to_qua == 1)
+			{
+				(*move_dis) += (line + colum);
+			}
+			else if (to_qua == 2)
+			{
+				(*move_dis) += (line - (i / 2) + colum);
+			}
+			else if (to_qua == 3)
+			{
+				(*move_dis) += 0;
+				(*move_num)--;
+			}
+		}
+	}
+	p_core[0]->add_one_task(*p_task, 0);
 	return 0;
 }
 
@@ -972,27 +1222,13 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 {
 	int i, z;
 	core** pp_temp_core;
-	task*** q;
 	task** pp_temp_task;
-	task** p;
-	int** task_num;
-	int* temp_task_num;
-	int* task_n;
-	task*** qua_task;
-	int* qua_task_num;
-	task_n = new int;
-	int temp_pp_task_num;
-	int q_no;
-	int temp_multi_core_res_re = 0;
-	int temp_qua_task_com_res = 0;
-	int temp_res_dif_v;
+	int core_res_re;
+	int temp_task_com;
+	int temp_task_prio;
 	int height_core_no = 0;
-	int core_no[2];
-	q = new task * *[3];
-	task_num = new int* [3];
-	p = new task * [3092];
-	//int core_no[2] = { 0,1 };
 	int have_height_core = -1;
+	pp_temp_task = new task * [1024];
 	pp_temp_core = (*m_c).get_p_core();
 	for (i = 0; i < 8; i++)
 	{
@@ -1004,67 +1240,1413 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 	}
 	if (have_height_core)
 	{
-		for (z = 0; z < 3; z++)
-		{
-			temp_task_num = new int;
-			task_num[z] = temp_task_num;
-			pp_temp_task = new task * [1024];
-			q[z] = pp_temp_task;
-		}
 		if (height_core_no == 0)
 		{
-			/*
-			*core_no = 0;
-			get_task_queue((*m_c), core_no, 1, q, task_num);
-			get_task_pp(q, task_num, 1, p, task_n);
-			sort_prio(p, *task_n);
-			DivQuadrants_3(qua_task, qua_task_num);
-			temp_pp_task_num = (*task_n);
-			while (*task_n > 0)
+			i = 0;
+			core_res_re = pp_temp_core[0]->get_com_res_re();
+			while (core_res_re < 0)
 			{
-				q_no = select_min_queue_3(qua_task[0], qua_task[1], qua_task[3], qua_task_num[0], qua_task_num[1], qua_task_num[3]);
-				Insert_task(qua_task[q_no], &qua_task_num[q_no], p[temp_pp_task_num - (*task_n)]);
-				(*task_n)--;
-			}
-			for (i = 0; i < 3; i++)
-			{
-				temp_multi_core_res_re = (pp_temp_core[i])->get_com_res_re();
-				temp_qua_task_com_res = get_qua_task_com_res(qua_task[i], qua_task_num[i]);
-				temp_res_dif_v = temp_qua_task_com_res - temp_multi_core_res_re;
-				if (temp_res_dif_v > 0)
+				temp_task_prio = pp_temp_core[0]->get_first_task_prio();
+				temp_task_com = pp_temp_core[0]->get_first_task_com();
+				pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[0]->remove_one_task(0);
+				if (temp_task_prio)
 				{
-					trimTask((*m_c), qua_task[i], &(qua_task_num[i]), i, qua_task, qua_task_num, temp_res_dif_v);
+					core_res_re += temp_task_com;
+				}
+				else
+				{
+					i--;
 				}
 			}
-			*/
+			for (z = 0; z < i; z++)
+			{
+				if ((z % 2) == 0)
+				{
+					pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+				}
+				else
+				{
+					pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+				}
+			}
+			if (pp_temp_core[1]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[1]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[1]->get_first_task_prio();
+					temp_task_com = pp_temp_core[1]->get_first_task_com();
+					pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[1]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+				}
+				if (pp_temp_core[2]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[2]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[2]->get_first_task_prio();
+						temp_task_com = pp_temp_core[2]->get_first_task_com();
+						pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[2]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+					}
+					if (pp_temp_core[4]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[4]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[4]->get_first_task_prio();
+							temp_task_com = pp_temp_core[4]->get_first_task_com();
+							pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[4]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+						}
+					}
+
+				}
+			}
+			if (pp_temp_core[3]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[3]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[3]->get_first_task_prio();
+					temp_task_com = pp_temp_core[3]->get_first_task_com();
+					pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[3]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+				}
+				if (pp_temp_core[5]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[5]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[5]->get_first_task_prio();
+						temp_task_com = pp_temp_core[5]->get_first_task_com();
+						pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[5]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+					}
+					if (pp_temp_core[6]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[6]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[6]->get_first_task_prio();
+							temp_task_com = pp_temp_core[6]->get_first_task_com();
+							pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[6]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+						}
+					}
+				}
+			}
 		}
 		else if (height_core_no == 1)
 		{
+			i = 0;
+			core_res_re = pp_temp_core[1]->get_com_res_re();
+			while (core_res_re < 0)
+			{
+				temp_task_prio = pp_temp_core[1]->get_first_task_prio();
+				temp_task_com = pp_temp_core[1]->get_first_task_com();
+				pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[1]->remove_one_task(0);
+				if (temp_task_prio)
+				{
+					core_res_re += temp_task_com;
+				}
+				else
+				{
+					i--;
+				}
+			}
+			for (z = 0; z < i; z++)
+			{
+				if ((z % 2) == 0)
+				{
+					pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+				}
+				else
+				{
+					pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+				}
+			}
+			if (pp_temp_core[0]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[0]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[0]->get_first_task_prio();
+					temp_task_com = pp_temp_core[0]->get_first_task_com();
+					pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[0]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+				}
+				if (pp_temp_core[3]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[3]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[3]->get_first_task_prio();
+						temp_task_com = pp_temp_core[3]->get_first_task_com();
+						pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[3]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+					}
+					if (pp_temp_core[5]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[5]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[5]->get_first_task_prio();
+							temp_task_com = pp_temp_core[5]->get_first_task_com();
+							pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[5]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+						}
+					}
 
+				}
+			}
+			if (pp_temp_core[2]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[2]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[2]->get_first_task_prio();
+					temp_task_com = pp_temp_core[2]->get_first_task_com();
+					pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[2]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+				}
+				if (pp_temp_core[4]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[4]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[4]->get_first_task_prio();
+						temp_task_com = pp_temp_core[4]->get_first_task_com();
+						pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[4]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+					}
+					if (pp_temp_core[7]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[7]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[7]->get_first_task_prio();
+							temp_task_com = pp_temp_core[7]->get_first_task_com();
+							pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[7]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+						}
+					}
+				}
+			}
 		}
 		else if (height_core_no == 2)
 		{
+			i = 0;
+			core_res_re = pp_temp_core[2]->get_com_res_re();
+			while (core_res_re < 0)
+			{
+				temp_task_prio = pp_temp_core[2]->get_first_task_prio();
+				temp_task_com = pp_temp_core[2]->get_first_task_com();
+				pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[2]->remove_one_task(0);
+				if (temp_task_prio)
+				{
+					core_res_re += temp_task_com;
+				}
+				else
+				{
+					i--;
+				}
+			}
+			for (z = 0; z < i; z++)
+			{
+				if ((z % 2) == 0)
+				{
+					pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+				}
+				else
+				{
+					pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+				}
+			}
+			if (pp_temp_core[1]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[1]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[1]->get_first_task_prio();
+					temp_task_com = pp_temp_core[1]->get_first_task_com();
+					pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[1]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+				}
+				if (pp_temp_core[0]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[0]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[0]->get_first_task_prio();
+						temp_task_com = pp_temp_core[0]->get_first_task_com();
+						pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[0]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+					}
+					if (pp_temp_core[3]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[3]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[3]->get_first_task_prio();
+							temp_task_com = pp_temp_core[3]->get_first_task_com();
+							pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[3]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+						}
+					}
 
+				}
+			}
+			if (pp_temp_core[4]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[4]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[4]->get_first_task_prio();
+					temp_task_com = pp_temp_core[4]->get_first_task_com();
+					pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[4]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+				}
+				if (pp_temp_core[7]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[7]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[7]->get_first_task_prio();
+						temp_task_com = pp_temp_core[7]->get_first_task_com();
+						pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[7]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+					}
+					if (pp_temp_core[6]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[6]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[6]->get_first_task_prio();
+							temp_task_com = pp_temp_core[6]->get_first_task_com();
+							pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[6]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+						}
+					}
+				}
+			}
 		}
 		else if (height_core_no == 3)
 		{
+			i = 0;
+			core_res_re = pp_temp_core[3]->get_com_res_re();
+			while (core_res_re < 0)
+			{
+				temp_task_prio = pp_temp_core[3]->get_first_task_prio();
+				temp_task_com = pp_temp_core[3]->get_first_task_com();
+				pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[3]->remove_one_task(0);
+				if (temp_task_prio)
+				{
+					core_res_re += temp_task_com;
+				}
+				else
+				{
+					i--;
+				}
+			}
+			for (z = 0; z < i; z++)
+			{
+				if ((z % 2) == 0)
+				{
+					pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+				}
+				else
+				{
+					pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+				}
+			}
+			if (pp_temp_core[0]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[0]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[0]->get_first_task_prio();
+					temp_task_com = pp_temp_core[0]->get_first_task_com();
+					pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[0]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+				}
+				if (pp_temp_core[1]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[1]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[1]->get_first_task_prio();
+						temp_task_com = pp_temp_core[1]->get_first_task_com();
+						pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[1]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+					}
+					if (pp_temp_core[2]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[2]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[2]->get_first_task_prio();
+							temp_task_com = pp_temp_core[2]->get_first_task_com();
+							pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[2]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+						}
+					}
 
+				}
+			}
+			if (pp_temp_core[5]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[5]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[5]->get_first_task_prio();
+					temp_task_com = pp_temp_core[5]->get_first_task_com();
+					pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[5]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+				}
+				if (pp_temp_core[6]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[6]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[6]->get_first_task_prio();
+						temp_task_com = pp_temp_core[6]->get_first_task_com();
+						pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[6]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+					}
+					if (pp_temp_core[7]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[7]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[7]->get_first_task_prio();
+							temp_task_com = pp_temp_core[7]->get_first_task_com();
+							pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[7]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+						}
+					}
+				}
+			}
 		}
 		else if (height_core_no == 4)
 		{
+			i = 0;
+			core_res_re = pp_temp_core[4]->get_com_res_re();
+			while (core_res_re < 0)
+			{
+				temp_task_prio = pp_temp_core[4]->get_first_task_prio();
+				temp_task_com = pp_temp_core[4]->get_first_task_com();
+				pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[4]->remove_one_task(0);
+				if (temp_task_prio)
+				{
+					core_res_re += temp_task_com;
+				}
+				else
+				{
+					i--;
+				}
+			}
+			for (z = 0; z < i; z++)
+			{
+				if ((z % 2) == 0)
+				{
+					pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+				}
+				else
+				{
+					pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+				}
+			}
+			if (pp_temp_core[2]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[2]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[2]->get_first_task_prio();
+					temp_task_com = pp_temp_core[2]->get_first_task_com();
+					pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[2]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+				}
+				if (pp_temp_core[1]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[1]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[1]->get_first_task_prio();
+						temp_task_com = pp_temp_core[1]->get_first_task_com();
+						pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[1]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+					}
+					if (pp_temp_core[0]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[0]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[0]->get_first_task_prio();
+							temp_task_com = pp_temp_core[0]->get_first_task_com();
+							pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[0]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+						}
+					}
 
+				}
+			}
+			if (pp_temp_core[7]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[7]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[7]->get_first_task_prio();
+					temp_task_com = pp_temp_core[7]->get_first_task_com();
+					pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[7]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+				}
+				if (pp_temp_core[6]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[6]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[6]->get_first_task_prio();
+						temp_task_com = pp_temp_core[6]->get_first_task_com();
+						pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[6]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+					}
+					if (pp_temp_core[5]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[5]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[5]->get_first_task_prio();
+							temp_task_com = pp_temp_core[5]->get_first_task_com();
+							pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[5]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+						}
+					}
+				}
+			}
 		}
 		else if (height_core_no == 5)
 		{
+			i = 0;
+			core_res_re = pp_temp_core[5]->get_com_res_re();
+			while (core_res_re < 0)
+			{
+				temp_task_prio = pp_temp_core[5]->get_first_task_prio();
+				temp_task_com = pp_temp_core[5]->get_first_task_com();
+				pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[5]->remove_one_task(0);
+				if (temp_task_prio)
+				{
+					core_res_re += temp_task_com;
+				}
+				else
+				{
+					i--;
+				}
+			}
+			for (z = 0; z < i; z++)
+			{
+				if ((z % 2) == 0)
+				{
+					pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+				}
+				else
+				{
+					pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+				}
+			}
+			if (pp_temp_core[3]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[3]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[3]->get_first_task_prio();
+					temp_task_com = pp_temp_core[3]->get_first_task_com();
+					pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[3]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+				}
+				if (pp_temp_core[0]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[0]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[0]->get_first_task_prio();
+						temp_task_com = pp_temp_core[0]->get_first_task_com();
+						pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[0]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+					}
+					if (pp_temp_core[1]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[1]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[1]->get_first_task_prio();
+							temp_task_com = pp_temp_core[1]->get_first_task_com();
+							pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[1]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+						}
+					}
 
+				}
+			}
+			if (pp_temp_core[6]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[6]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[6]->get_first_task_prio();
+					temp_task_com = pp_temp_core[6]->get_first_task_com();
+					pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[6]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+				}
+				if (pp_temp_core[7]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[7]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[7]->get_first_task_prio();
+						temp_task_com = pp_temp_core[7]->get_first_task_com();
+						pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[7]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+					}
+					if (pp_temp_core[4]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[4]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[4]->get_first_task_prio();
+							temp_task_com = pp_temp_core[4]->get_first_task_com();
+							pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[4]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+						}
+					}
+				}
+			}
 		}
 		else if (height_core_no == 6)
 		{
-			
+			i = 0;
+			core_res_re = pp_temp_core[6]->get_com_res_re();
+			while (core_res_re < 0)
+			{
+				temp_task_prio = pp_temp_core[6]->get_first_task_prio();
+				temp_task_com = pp_temp_core[6]->get_first_task_com();
+				pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[6]->remove_one_task(0);
+				if (temp_task_prio)
+				{
+					core_res_re += temp_task_com;
+				}
+				else
+				{
+					i--;
+				}
+			}
+			for (z = 0; z < i; z++)
+			{
+				if ((z % 2) == 0)
+				{
+					pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+				}
+				else
+				{
+					pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+				}
+			}
+			if (pp_temp_core[5]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[5]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[5]->get_first_task_prio();
+					temp_task_com = pp_temp_core[5]->get_first_task_com();
+					pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[5]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+				}
+				if (pp_temp_core[3]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[3]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[3]->get_first_task_prio();
+						temp_task_com = pp_temp_core[3]->get_first_task_com();
+						pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[3]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+					}
+					if (pp_temp_core[0]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[0]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[0]->get_first_task_prio();
+							temp_task_com = pp_temp_core[0]->get_first_task_com();
+							pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[0]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+						}
+					}
+
+				}
+			}
+			if (pp_temp_core[7]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[7]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[7]->get_first_task_prio();
+					temp_task_com = pp_temp_core[7]->get_first_task_com();
+					pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[7]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+				}
+				if (pp_temp_core[4]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[4]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[4]->get_first_task_prio();
+						temp_task_com = pp_temp_core[4]->get_first_task_com();
+						pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[4]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+					}
+					if (pp_temp_core[2]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[2]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[2]->get_first_task_prio();
+							temp_task_com = pp_temp_core[2]->get_first_task_com();
+							pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[2]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+						}
+					}
+				}
+			}
 		}
 		else
 		{
+			i = 0;
+			core_res_re = pp_temp_core[7]->get_com_res_re();
+			while (core_res_re < 0)
+			{
+				temp_task_prio = pp_temp_core[7]->get_first_task_prio();
+				temp_task_com = pp_temp_core[7]->get_first_task_com();
+				pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[7]->remove_one_task(0);
+				if (temp_task_prio)
+				{
+					core_res_re += temp_task_com;
+				}
+				else
+				{
+					i--;
+				}
+			}
+			for (z = 0; z < i; z++)
+			{
+				if ((z % 2) == 0)
+				{
+					pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+				}
+				else
+				{
+					pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+				}
+			}
+			if (pp_temp_core[4]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[4]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[4]->get_first_task_prio();
+					temp_task_com = pp_temp_core[4]->get_first_task_com();
+					pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[4]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+				}
+				if (pp_temp_core[2]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[2]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[2]->get_first_task_prio();
+						temp_task_com = pp_temp_core[2]->get_first_task_com();
+						pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[2]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+					}
+					if (pp_temp_core[1]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[1]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[1]->get_first_task_prio();
+							temp_task_com = pp_temp_core[1]->get_first_task_com();
+							pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[1]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+						}
+					}
 
+				}
+			}
+			if (pp_temp_core[6]->check_state() >= 3)
+			{
+				i = 0;
+				core_res_re = pp_temp_core[6]->get_com_res_re();
+				while (core_res_re < 0)
+				{
+					temp_task_prio = pp_temp_core[6]->get_first_task_prio();
+					temp_task_com = pp_temp_core[6]->get_first_task_com();
+					pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[6]->remove_one_task(0);
+					if (temp_task_prio)
+					{
+						core_res_re += temp_task_com;
+					}
+					else
+					{
+						i--;
+					}
+				}
+				for (z = 0; z < i; z++)
+				{
+					pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+				}
+				if (pp_temp_core[5]->check_state() >= 3)
+				{
+					i = 0;
+					core_res_re = pp_temp_core[5]->get_com_res_re();
+					while (core_res_re < 0)
+					{
+						temp_task_prio = pp_temp_core[5]->get_first_task_prio();
+						temp_task_com = pp_temp_core[5]->get_first_task_com();
+						pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[5]->remove_one_task(0);
+						if (temp_task_prio)
+						{
+							core_res_re += temp_task_com;
+						}
+						else
+						{
+							i--;
+						}
+					}
+					for (z = 0; z < i; z++)
+					{
+						pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+					}
+					if (pp_temp_core[3]->check_state() >= 3)
+					{
+						i = 0;
+						core_res_re = pp_temp_core[3]->get_com_res_re();
+						while (core_res_re < 0)
+						{
+							temp_task_prio = pp_temp_core[3]->get_first_task_prio();
+							temp_task_com = pp_temp_core[3]->get_first_task_com();
+							pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[3]->remove_one_task(0);
+							if (temp_task_prio)
+							{
+								core_res_re += temp_task_com;
+							}
+							else
+							{
+								i--;
+							}
+						}
+						for (z = 0; z < i; z++)
+						{
+							pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+						}
+					}
+				}
+			}
 		}
 	}
 	else
@@ -1360,7 +2942,7 @@ int schedule::Base_load_balance_schedule(multi_core* m_c)
 		}
 		for (i = 0; i < 4; i++)
 		{
-			migrateTask(qua_task[i], qua_task_num[i], re_m_c, (*m_c), i);
+			migrateTask_B(qua_task[i], qua_task_num[i], re_m_c, (*m_c), i);
 		}
 		for (i = 0; i < 4; i++)
 		{

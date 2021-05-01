@@ -47,9 +47,34 @@ double math::S_D_double_sq_new_1(double** p, int n, int m)
 		{
 			num2 += p[i][z];
 		}
-		num3 = (num2 - num1)* (num2 - num1);
+		num3 += (num2 - num1)* (num2 - num1);
 	}
 	num3 = num3 / n;
+	return num3;
+}
+
+int math::S_D_int_sq(int** p, int* core_num, int** core_have_task_num)
+{
+	int i, z, temp_core_no = 0, temp_core_have_task_num = 0;
+	int num1 = 0, num2 = 0, num3 = 0;
+	for (i = 0; i < *core_num; i++)
+	{
+		for (z = 0; z < *(core_have_task_num[i]); z++)
+		{
+			num1 += p[i][z];
+		}
+	}
+	num1 /= (*core_num);
+	for (i = 0; i < *core_num; i++)
+	{
+		num2 = 0;
+		for (z = 0; z < *(core_have_task_num[i]); z++)
+		{
+			num2 += p[i][z];
+		}
+		num3 += (num2 - num1) * (num2 - num1);
+	}
+	num3 = num3 / (*core_num);
 	return num3;
 }
 
@@ -146,7 +171,7 @@ int math::get_empty_core_location(int* num, int core_j, int* re_num, int core_i)
 	return 0;
 }
 
-int math::get_line_on_even_k(int core_num, int i, int j)       //core_num : core_no
+int math::get_line_on_even_k(int core_num, int i, int j)       //core_num = core_no
 {
 	int line = 0;
 	while (core_num >= i)

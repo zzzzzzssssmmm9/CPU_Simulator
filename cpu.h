@@ -13,7 +13,7 @@ private:
 	double L_state;                   //轻度负载判断用的核心计算资源用量比例
 	double M_state;                   //中度
 	double H_state;	                  //重度
-	ttask* p_task_start;              //任务队列起始指针
+	ttask* p_task_start;              //任务队列起始指针,该指针指向的下一个任务是该核心任务队列中的第一个任务
 	ttask* p_task_end;                //任务队列队尾指针
 	int task_num;                     //任务队列容量
 	int task_num_limit;               //任务队列容量限制
@@ -45,6 +45,8 @@ public:
 	int get_com_res_re();
 	int get_com_res_use();
 	int get_comput();
+	int get_first_task_com();
+	int get_first_task_prio();
 	int display();
 };
 

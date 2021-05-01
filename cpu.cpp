@@ -104,15 +104,15 @@ int core::use_res(int n)
 
 int core::check_state()
 {
-	if (comput_res_use > H_state * computing_resource)
+	if (comput_res_use >= H_state * computing_resource)
 	{
 		state = 3;
 	}
-	else if (comput_res_use > M_state * computing_resource)
+	else if (comput_res_use >= M_state * computing_resource)
 	{
 		state = 2;
 	}
-	else if (comput_res_use > L_state * computing_resource)
+	else if (comput_res_use >= L_state * computing_resource)
 	{
 		state = 1;
 	}
@@ -328,6 +328,20 @@ int core::get_com_res_use()
 int core::get_comput()
 {
 	return computing_resource;
+}
+
+int core::get_first_task_com()
+{
+	ttask* p_t;
+	p_t = p_task_start->p;
+	return (p_t->T).get_com();
+}
+
+int core::get_first_task_prio()
+{
+	ttask* p_t;
+	p_t = p_task_start->p;
+	return (p_t->T).get_prio();
 }
 
 int core::display()

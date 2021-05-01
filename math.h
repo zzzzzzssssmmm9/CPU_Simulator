@@ -14,6 +14,7 @@ public:
 	double get_result();
 	int S_D_double_sq(double* p, int n);      //返回标准差的平方
 	double S_D_double_sq_new_1(double** p, int n, int m);
+	int S_D_int_sq(int** p, int* core_num, int** core_have_task_num);
 	int int_min(int* p, int n);               //返回数组中最小值的位置
 	int get_2_order(int num);
 	int get_i_for_DLBQ(int num);

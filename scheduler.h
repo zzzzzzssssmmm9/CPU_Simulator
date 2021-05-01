@@ -44,8 +44,10 @@ public:
 	int trimTask(multi_core m_c, task** p, int* task_num, int task_qua, task*** p_h, int* task_num_h, int res_dif_v);
 	int get_low_class_task(task** p, int* task_num, int* re_task_no);
 	int task_sort_low(task** p, int* task_num);     //sortpriority
-	int move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, core** p_core);
+	int move_task(multi_core m_c, task* p_task, int from_qua, int to_qua, core** p_core, int* move_dis, int* move_num);
+	int move_task_B(multi_core m_c, task* p_task, int from_qua, int to_qua, core** p_core, int* move_dis, int* move_num);
 	int migrateTask(task** p_task, int task_num, multi_core** re_m_c, multi_core m_c, int core_qua);
+	int migrateTask_B(task** p_task, int task_num, multi_core** re_m_c, multi_core m_c, int core_qua);
 	int get_core_qua(int no, multi_core m_c);
 	int get_qua_task_com_res(task** p, int task_num);
 	int load_balance_to_eight_core(multi_core* m_c);
