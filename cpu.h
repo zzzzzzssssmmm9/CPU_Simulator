@@ -32,7 +32,7 @@ public:
 	int add_one_task(task t, int core_no);
 	int add_task(task* p, int n, int core_no);
 	int add_task_p(task** p, int n, int core_no);
-	int get_one_task(int no, task* p_return);
+	int get_one_task(int no, task** p_return);
 	int get_task(int start_no, int num, task** q);
 	int get_all_task(task** q, int* re_task_num);
 	int remove_one_task(int model);         //model为1删除任务占用内存,0不删除
@@ -47,6 +47,7 @@ public:
 	int get_comput();
 	int get_first_task_com();
 	int get_first_task_prio();
+	int set_all_task_no(int n);
 	int display();
 };
 

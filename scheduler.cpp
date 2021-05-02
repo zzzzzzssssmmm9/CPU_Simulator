@@ -243,7 +243,10 @@ int schedule::divide_multi_core(multi_core m_c, core*** re_divide_core)
 					else 
 					{
 						re_divide_core[1][x] = p_temp_core[temp_core_no];
-						re_divide_core[2][x++] = p_temp_core[temp_core_no + (core_num / 2)];
+						re_divide_core[2][x] = p_temp_core[temp_core_no + (core_num / 2)];
+						(re_divide_core[1][x])->set_all_task_no(x);
+						(re_divide_core[2][x])->set_all_task_no(x);
+						x++;
 						temp_core_no++;
 					}
 				}
@@ -256,7 +259,10 @@ int schedule::divide_multi_core(multi_core m_c, core*** re_divide_core)
 					else
 					{
 						re_divide_core[0][z] = p_temp_core[temp_core_no];
-						re_divide_core[3][z++] = p_temp_core[temp_core_no + (core_num / 2)];
+						re_divide_core[3][z] = p_temp_core[temp_core_no + (core_num / 2)];
+						(re_divide_core[0][z])->set_all_task_no(z);
+						(re_divide_core[3][z])->set_all_task_no(z);
+						z++;
 						temp_core_no++;
 					}
 				}
@@ -277,12 +283,18 @@ int schedule::divide_multi_core(multi_core m_c, core*** re_divide_core)
 				{
 					
 					re_divide_core[1][x] = p_temp_core[i];
-					re_divide_core[2][x++] = p_temp_core[i + (core_num / 2)];
+					re_divide_core[2][x] = p_temp_core[i + (core_num / 2)];
+					(re_divide_core[1][x])->set_all_task_no(x);
+					(re_divide_core[2][x])->set_all_task_no(x);
+					x++;
 				}
 				else
 				{
 					re_divide_core[0][z] = p_temp_core[i];
-					re_divide_core[3][z++] = p_temp_core[i + (core_num / 2)];
+					re_divide_core[3][z] = p_temp_core[i + (core_num / 2)];
+					(re_divide_core[0][z])->set_all_task_no(z);
+					(re_divide_core[3][z])->set_all_task_no(z);
+					z++;
 				}
 			}
 		}
@@ -397,9 +409,13 @@ int schedule::trimTask(multi_core m_c, task** p, int* task_num, int task_qua, ta
 		{
 			while (temp_qua == task_qua)
 			{
+				i++;
+				if (*task_num < i)
+				{
+					return 1;
+				}
 				temp_core_no = p[(*task_num) - i]->get_core_no();
 				temp_qua = get_core_qua(temp_core_no, m_c);
-				i++;
 			}
 			res_dif_v -= p[(*task_num) - i]->get_com();
 			p_h[temp_qua][(task_num_h[temp_qua])++] = p[(*task_num) - i];
@@ -1248,7 +1264,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 			{
 				temp_task_prio = pp_temp_core[0]->get_first_task_prio();
 				temp_task_com = pp_temp_core[0]->get_first_task_com();
-				pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[0]->get_one_task(1, &(pp_temp_task[i++]));
 				pp_temp_core[0]->remove_one_task(0);
 				if (temp_task_prio)
 				{
@@ -1278,7 +1294,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[1]->get_first_task_prio();
 					temp_task_com = pp_temp_core[1]->get_first_task_com();
-					pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[1]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[1]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -1301,7 +1317,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[2]->get_first_task_prio();
 						temp_task_com = pp_temp_core[2]->get_first_task_com();
-						pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[2]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[2]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -1324,7 +1340,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[4]->get_first_task_prio();
 							temp_task_com = pp_temp_core[4]->get_first_task_com();
-							pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[4]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[4]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -1351,7 +1367,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[3]->get_first_task_prio();
 					temp_task_com = pp_temp_core[3]->get_first_task_com();
-					pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[3]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[3]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -1374,7 +1390,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[5]->get_first_task_prio();
 						temp_task_com = pp_temp_core[5]->get_first_task_com();
-						pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[5]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[5]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -1397,7 +1413,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[6]->get_first_task_prio();
 							temp_task_com = pp_temp_core[6]->get_first_task_com();
-							pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[6]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[6]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -1424,7 +1440,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 			{
 				temp_task_prio = pp_temp_core[1]->get_first_task_prio();
 				temp_task_com = pp_temp_core[1]->get_first_task_com();
-				pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[1]->get_one_task(1, &(pp_temp_task[i++]));
 				pp_temp_core[1]->remove_one_task(0);
 				if (temp_task_prio)
 				{
@@ -1454,7 +1470,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[0]->get_first_task_prio();
 					temp_task_com = pp_temp_core[0]->get_first_task_com();
-					pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[0]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[0]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -1477,7 +1493,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[3]->get_first_task_prio();
 						temp_task_com = pp_temp_core[3]->get_first_task_com();
-						pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[3]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[3]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -1500,7 +1516,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[5]->get_first_task_prio();
 							temp_task_com = pp_temp_core[5]->get_first_task_com();
-							pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[5]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[5]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -1527,7 +1543,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[2]->get_first_task_prio();
 					temp_task_com = pp_temp_core[2]->get_first_task_com();
-					pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[2]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[2]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -1550,7 +1566,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[4]->get_first_task_prio();
 						temp_task_com = pp_temp_core[4]->get_first_task_com();
-						pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[4]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[4]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -1573,7 +1589,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[7]->get_first_task_prio();
 							temp_task_com = pp_temp_core[7]->get_first_task_com();
-							pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[7]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[7]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -1600,7 +1616,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 			{
 				temp_task_prio = pp_temp_core[2]->get_first_task_prio();
 				temp_task_com = pp_temp_core[2]->get_first_task_com();
-				pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[2]->get_one_task(1, &(pp_temp_task[i++]));
 				pp_temp_core[2]->remove_one_task(0);
 				if (temp_task_prio)
 				{
@@ -1630,7 +1646,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[1]->get_first_task_prio();
 					temp_task_com = pp_temp_core[1]->get_first_task_com();
-					pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[1]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[1]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -1653,7 +1669,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[0]->get_first_task_prio();
 						temp_task_com = pp_temp_core[0]->get_first_task_com();
-						pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[0]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[0]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -1676,7 +1692,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[3]->get_first_task_prio();
 							temp_task_com = pp_temp_core[3]->get_first_task_com();
-							pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[3]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[3]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -1703,7 +1719,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[4]->get_first_task_prio();
 					temp_task_com = pp_temp_core[4]->get_first_task_com();
-					pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[4]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[4]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -1726,7 +1742,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[7]->get_first_task_prio();
 						temp_task_com = pp_temp_core[7]->get_first_task_com();
-						pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[7]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[7]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -1749,7 +1765,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[6]->get_first_task_prio();
 							temp_task_com = pp_temp_core[6]->get_first_task_com();
-							pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[6]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[6]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -1776,7 +1792,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 			{
 				temp_task_prio = pp_temp_core[3]->get_first_task_prio();
 				temp_task_com = pp_temp_core[3]->get_first_task_com();
-				pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[3]->get_one_task(1, &(pp_temp_task[i++]));
 				pp_temp_core[3]->remove_one_task(0);
 				if (temp_task_prio)
 				{
@@ -1806,7 +1822,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[0]->get_first_task_prio();
 					temp_task_com = pp_temp_core[0]->get_first_task_com();
-					pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[0]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[0]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -1829,7 +1845,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[1]->get_first_task_prio();
 						temp_task_com = pp_temp_core[1]->get_first_task_com();
-						pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[1]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[1]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -1852,7 +1868,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[2]->get_first_task_prio();
 							temp_task_com = pp_temp_core[2]->get_first_task_com();
-							pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[2]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[2]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -1879,7 +1895,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[5]->get_first_task_prio();
 					temp_task_com = pp_temp_core[5]->get_first_task_com();
-					pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[5]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[5]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -1902,7 +1918,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[6]->get_first_task_prio();
 						temp_task_com = pp_temp_core[6]->get_first_task_com();
-						pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[6]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[6]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -1925,7 +1941,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[7]->get_first_task_prio();
 							temp_task_com = pp_temp_core[7]->get_first_task_com();
-							pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[7]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[7]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -1952,7 +1968,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 			{
 				temp_task_prio = pp_temp_core[4]->get_first_task_prio();
 				temp_task_com = pp_temp_core[4]->get_first_task_com();
-				pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[4]->get_one_task(1, &(pp_temp_task[i++]));
 				pp_temp_core[4]->remove_one_task(0);
 				if (temp_task_prio)
 				{
@@ -1982,7 +1998,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[2]->get_first_task_prio();
 					temp_task_com = pp_temp_core[2]->get_first_task_com();
-					pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[2]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[2]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -2005,7 +2021,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[1]->get_first_task_prio();
 						temp_task_com = pp_temp_core[1]->get_first_task_com();
-						pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[1]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[1]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -2028,7 +2044,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[0]->get_first_task_prio();
 							temp_task_com = pp_temp_core[0]->get_first_task_com();
-							pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[0]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[0]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -2055,7 +2071,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[7]->get_first_task_prio();
 					temp_task_com = pp_temp_core[7]->get_first_task_com();
-					pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[7]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[7]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -2078,7 +2094,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[6]->get_first_task_prio();
 						temp_task_com = pp_temp_core[6]->get_first_task_com();
-						pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[6]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[6]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -2101,7 +2117,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[5]->get_first_task_prio();
 							temp_task_com = pp_temp_core[5]->get_first_task_com();
-							pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[5]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[5]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -2128,7 +2144,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 			{
 				temp_task_prio = pp_temp_core[5]->get_first_task_prio();
 				temp_task_com = pp_temp_core[5]->get_first_task_com();
-				pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[5]->get_one_task(1, &(pp_temp_task[i++]));
 				pp_temp_core[5]->remove_one_task(0);
 				if (temp_task_prio)
 				{
@@ -2158,7 +2174,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[3]->get_first_task_prio();
 					temp_task_com = pp_temp_core[3]->get_first_task_com();
-					pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[3]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[3]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -2181,7 +2197,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[0]->get_first_task_prio();
 						temp_task_com = pp_temp_core[0]->get_first_task_com();
-						pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[0]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[0]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -2204,7 +2220,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[1]->get_first_task_prio();
 							temp_task_com = pp_temp_core[1]->get_first_task_com();
-							pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[1]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[1]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -2231,7 +2247,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[6]->get_first_task_prio();
 					temp_task_com = pp_temp_core[6]->get_first_task_com();
-					pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[6]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[6]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -2254,7 +2270,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[7]->get_first_task_prio();
 						temp_task_com = pp_temp_core[7]->get_first_task_com();
-						pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[7]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[7]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -2277,7 +2293,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[4]->get_first_task_prio();
 							temp_task_com = pp_temp_core[4]->get_first_task_com();
-							pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[4]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[4]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -2304,7 +2320,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 			{
 				temp_task_prio = pp_temp_core[6]->get_first_task_prio();
 				temp_task_com = pp_temp_core[6]->get_first_task_com();
-				pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[6]->get_one_task(1, &(pp_temp_task[i++]));
 				pp_temp_core[6]->remove_one_task(0);
 				if (temp_task_prio)
 				{
@@ -2334,7 +2350,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[5]->get_first_task_prio();
 					temp_task_com = pp_temp_core[5]->get_first_task_com();
-					pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[5]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[5]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -2357,7 +2373,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[3]->get_first_task_prio();
 						temp_task_com = pp_temp_core[3]->get_first_task_com();
-						pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[3]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[3]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -2380,7 +2396,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[0]->get_first_task_prio();
 							temp_task_com = pp_temp_core[0]->get_first_task_com();
-							pp_temp_core[0]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[0]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[0]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -2407,7 +2423,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[7]->get_first_task_prio();
 					temp_task_com = pp_temp_core[7]->get_first_task_com();
-					pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[7]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[7]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -2430,7 +2446,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[4]->get_first_task_prio();
 						temp_task_com = pp_temp_core[4]->get_first_task_com();
-						pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[4]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[4]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -2453,7 +2469,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[2]->get_first_task_prio();
 							temp_task_com = pp_temp_core[2]->get_first_task_com();
-							pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[2]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[2]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -2480,7 +2496,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 			{
 				temp_task_prio = pp_temp_core[7]->get_first_task_prio();
 				temp_task_com = pp_temp_core[7]->get_first_task_com();
-				pp_temp_core[7]->get_one_task(1, pp_temp_task[i++]);
+				pp_temp_core[7]->get_one_task(1, &(pp_temp_task[i++]));
 				pp_temp_core[7]->remove_one_task(0);
 				if (temp_task_prio)
 				{
@@ -2510,7 +2526,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[4]->get_first_task_prio();
 					temp_task_com = pp_temp_core[4]->get_first_task_com();
-					pp_temp_core[4]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[4]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[4]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -2533,7 +2549,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[2]->get_first_task_prio();
 						temp_task_com = pp_temp_core[2]->get_first_task_com();
-						pp_temp_core[2]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[2]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[2]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -2556,7 +2572,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[1]->get_first_task_prio();
 							temp_task_com = pp_temp_core[1]->get_first_task_com();
-							pp_temp_core[1]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[1]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[1]->remove_one_task(0);
 							if (temp_task_prio)
 							{
@@ -2583,7 +2599,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					temp_task_prio = pp_temp_core[6]->get_first_task_prio();
 					temp_task_com = pp_temp_core[6]->get_first_task_com();
-					pp_temp_core[6]->get_one_task(1, pp_temp_task[i++]);
+					pp_temp_core[6]->get_one_task(1, &(pp_temp_task[i++]));
 					pp_temp_core[6]->remove_one_task(0);
 					if (temp_task_prio)
 					{
@@ -2606,7 +2622,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					{
 						temp_task_prio = pp_temp_core[5]->get_first_task_prio();
 						temp_task_com = pp_temp_core[5]->get_first_task_com();
-						pp_temp_core[5]->get_one_task(1, pp_temp_task[i++]);
+						pp_temp_core[5]->get_one_task(1, &(pp_temp_task[i++]));
 						pp_temp_core[5]->remove_one_task(0);
 						if (temp_task_prio)
 						{
@@ -2629,7 +2645,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						{
 							temp_task_prio = pp_temp_core[3]->get_first_task_prio();
 							temp_task_com = pp_temp_core[3]->get_first_task_com();
-							pp_temp_core[3]->get_one_task(1, pp_temp_task[i++]);
+							pp_temp_core[3]->get_one_task(1, &(pp_temp_task[i++]));
 							pp_temp_core[3]->remove_one_task(0);
 							if (temp_task_prio)
 							{

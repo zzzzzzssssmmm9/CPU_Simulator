@@ -208,7 +208,7 @@ int math::get_line_on_odd_k(int core_num, int i, int j)
 	}
 	else if (core_num < 2 * i - j)
 	{
-		line = temp_i + 3 + 1;
+		line = temp_i * 3 + 1;
 	}
 	else
 	{
