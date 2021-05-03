@@ -44,7 +44,7 @@ int sys::run(int core_num, int height_num, int* height_core_no, double height_st
 	}
 	/**/
 	task_all_com = get_all_task_com(pp_t_1, task_num);
-	core_com = (task_all_com / core_num)*1.2;// *1.2;// *0.9;// *2// * 1;
+	core_com = (task_all_com / core_num) * 0.9;// *1.2;// *0.9;// *2// * 1;
 	create_multi_core(core_num, core_com, height_state);
 	/*
 	for (i = 0; i < height_num; i++)

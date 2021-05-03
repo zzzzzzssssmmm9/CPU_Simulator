@@ -1242,8 +1242,9 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 	int core_res_re;
 	int temp_task_com;
 	int temp_task_prio;
-	int height_core_no = 0;
-	int have_height_core = -1;
+	int height_core_no = -1;
+	int have_height_core = 0;
+	int move_num = 0, move_dis = 0;
 	pp_temp_task = new task * [1024];
 	pp_temp_core = (*m_c).get_p_core();
 	for (i = 0; i < 8; i++)
@@ -1285,6 +1286,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
 				}
+				move_dis++;
+				move_num++;
 			}
 			if (pp_temp_core[1]->check_state() >= 3)
 			{
@@ -1308,6 +1311,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[2]->check_state() >= 3)
 				{
@@ -1331,6 +1336,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[4]->check_state() >= 3)
 					{
@@ -1354,6 +1361,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+							move_dis++;
+							move_num++;
 						}
 					}
 
@@ -1381,6 +1390,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[5]->check_state() >= 3)
 				{
@@ -1404,6 +1415,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[6]->check_state() >= 3)
 					{
@@ -1427,6 +1440,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+							move_dis++;
+							move_num++;
 						}
 					}
 				}
@@ -1461,6 +1476,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
 				}
+				move_dis++;
+				move_num++;
 			}
 			if (pp_temp_core[0]->check_state() >= 3)
 			{
@@ -1484,6 +1501,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[3]->check_state() >= 3)
 				{
@@ -1507,6 +1526,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[5]->check_state() >= 3)
 					{
@@ -1530,6 +1551,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+							move_dis++;
+							move_num++;
 						}
 					}
 
@@ -1557,6 +1580,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[4]->check_state() >= 3)
 				{
@@ -1580,6 +1605,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[7]->check_state() >= 3)
 					{
@@ -1603,6 +1630,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+							move_dis++;
+							move_num++;
 						}
 					}
 				}
@@ -1637,6 +1666,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
 				}
+				move_dis++;
+				move_num++;
 			}
 			if (pp_temp_core[1]->check_state() >= 3)
 			{
@@ -1660,6 +1691,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[0]->check_state() >= 3)
 				{
@@ -1683,6 +1716,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[3]->check_state() >= 3)
 					{
@@ -1706,6 +1741,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+							move_dis++;
+							move_num++;
 						}
 					}
 
@@ -1733,6 +1770,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[7]->check_state() >= 3)
 				{
@@ -1756,6 +1795,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[6]->check_state() >= 3)
 					{
@@ -1779,6 +1820,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+							move_dis++;
+							move_num++;
 						}
 					}
 				}
@@ -1813,6 +1856,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
 				}
+				move_dis++;
+				move_num++;
 			}
 			if (pp_temp_core[0]->check_state() >= 3)
 			{
@@ -1836,6 +1881,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[1]->check_state() >= 3)
 				{
@@ -1859,6 +1906,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[2]->check_state() >= 3)
 					{
@@ -1882,6 +1931,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+							move_dis++;
+							move_num++;
 						}
 					}
 
@@ -1909,6 +1960,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[6]->check_state() >= 3)
 				{
@@ -1932,6 +1985,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[7]->check_state() >= 3)
 					{
@@ -1955,6 +2010,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+							move_dis++;
+							move_num++;
 						}
 					}
 				}
@@ -1989,6 +2046,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
 				}
+				move_dis++;
+				move_num++;
 			}
 			if (pp_temp_core[2]->check_state() >= 3)
 			{
@@ -2012,6 +2071,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[1]->check_state() >= 3)
 				{
@@ -2035,6 +2096,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[0]->check_state() >= 3)
 					{
@@ -2058,6 +2121,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+							move_dis++;
+							move_num++;
 						}
 					}
 
@@ -2085,6 +2150,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[6]->check_state() >= 3)
 				{
@@ -2108,6 +2175,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[5]->check_state() >= 3)
 					{
@@ -2131,6 +2200,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+							move_dis++;
+							move_num++;
 						}
 					}
 				}
@@ -2165,6 +2236,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
 				}
+				move_dis++;
+				move_num++;
 			}
 			if (pp_temp_core[3]->check_state() >= 3)
 			{
@@ -2188,6 +2261,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[0]->check_state() >= 3)
 				{
@@ -2211,6 +2286,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[1]->check_state() >= 3)
 					{
@@ -2234,6 +2311,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+							move_dis++;
+							move_num++;
 						}
 					}
 
@@ -2261,6 +2340,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[7]->check_state() >= 3)
 				{
@@ -2284,6 +2365,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[4]->check_state() >= 3)
 					{
@@ -2307,6 +2390,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+							move_dis++;
+							move_num++;
 						}
 					}
 				}
@@ -2341,6 +2426,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					pp_temp_core[7]->add_one_task(*(pp_temp_task[z]), 7);
 				}
+				move_dis++;
+				move_num++;
 			}
 			if (pp_temp_core[5]->check_state() >= 3)
 			{
@@ -2364,6 +2451,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[3]->check_state() >= 3)
 				{
@@ -2387,6 +2476,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[0]->check_state() >= 3)
 					{
@@ -2410,6 +2501,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+							move_dis++;
+							move_num++;
 						}
 					}
 
@@ -2437,6 +2530,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[4]->add_one_task(*(pp_temp_task[z]), 4);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[4]->check_state() >= 3)
 				{
@@ -2460,6 +2555,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[2]->check_state() >= 3)
 					{
@@ -2483,6 +2580,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+							move_dis++;
+							move_num++;
 						}
 					}
 				}
@@ -2517,6 +2616,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				{
 					pp_temp_core[6]->add_one_task(*(pp_temp_task[z]), 6);
 				}
+				move_dis++;
+				move_num++;
 			}
 			if (pp_temp_core[4]->check_state() >= 3)
 			{
@@ -2540,6 +2641,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[2]->add_one_task(*(pp_temp_task[z]), 2);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[2]->check_state() >= 3)
 				{
@@ -2563,6 +2666,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[1]->add_one_task(*(pp_temp_task[z]), 1);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[1]->check_state() >= 3)
 					{
@@ -2586,6 +2691,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+							move_dis++;
+							move_num++;
 						}
 					}
 
@@ -2613,6 +2720,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 				for (z = 0; z < i; z++)
 				{
 					pp_temp_core[5]->add_one_task(*(pp_temp_task[z]), 5);
+					move_dis++;
+					move_num++;
 				}
 				if (pp_temp_core[5]->check_state() >= 3)
 				{
@@ -2636,6 +2745,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 					for (z = 0; z < i; z++)
 					{
 						pp_temp_core[3]->add_one_task(*(pp_temp_task[z]), 3);
+						move_dis++;
+						move_num++;
 					}
 					if (pp_temp_core[3]->check_state() >= 3)
 					{
@@ -2659,6 +2770,8 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 						for (z = 0; z < i; z++)
 						{
 							pp_temp_core[0]->add_one_task(*(pp_temp_task[z]), 0);
+							move_dis++;
+							move_num++;
 						}
 					}
 				}
@@ -2669,6 +2782,7 @@ int schedule::load_balance_to_eight_core(multi_core* m_c)      //在面对有八
 	{
 		return 0;
 	}
+	printf("move num: %d move dis: %d\n", move_num, move_dis);
 	return 0;
 }
 
