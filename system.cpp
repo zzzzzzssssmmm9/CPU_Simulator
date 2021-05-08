@@ -5,10 +5,9 @@ sys::sys()
 	sche.set_modle(1);
 }
 
-int sys::run(int core_num, int height_num, int* height_core_no, double height_state, int task_run_time, int task_com, int task_grad)
+int sys::run(int core_num, int height_num, int* height_core_no, double height_state, int task_run_time, int task_com, int task_grad, int task_num_modle, int t_n)
 {
 	math m;
-	multi_core m_c_2;
 	int i, z, task_num = 0, task_all_com, core_com;
 	cout << "Fuck You" << endl;
 	task** pp_t_1, **pp_t_2, **pp_t_3;
@@ -23,6 +22,11 @@ int sys::run(int core_num, int height_num, int* height_core_no, double height_st
 	{
 		task_num = m.get_random(10) * task_grad;
 	}
+	if (task_num_modle)
+	{
+		task_num = t_n;
+	}
+	cout << "task num:" << task_num << endl;
 	create_task(task_num, task_run_time, task_com, pp_t_1);
 	for (i = 0; i < task_num; i++)
 	{
@@ -40,7 +44,7 @@ int sys::run(int core_num, int height_num, int* height_core_no, double height_st
 	}
 	/**/
 	task_all_com = get_all_task_com(pp_t_1, task_num);
-	core_com = (task_all_com / core_num) * 2;
+	core_com = (task_all_com / core_num) * 0.9;// *1.2;// *0.9;// *2// * 1;
 	create_multi_core(core_num, core_com, height_state);
 	/*
 	for (i = 0; i < height_num; i++)
@@ -48,22 +52,42 @@ int sys::run(int core_num, int height_num, int* height_core_no, double height_st
 		height_core_no[i] = i * 3;
 	}
 	*/
-	allo_task_to_core(pp_t_1, pp_t_2, pp_t_3, task_num, height_core_no, height_num, core_com);
+	if (allo_task_to_core(pp_t_1, pp_t_2, pp_t_3, task_num, height_core_no, height_num, core_com))
+	{
+		cout << "allo_task error!" << endl;
+		return 0;
+	}
 	p = m_c_1.get_p_core();
+	cout << "m_c_1:" << endl;
 	for (i = 0; i < core_num; i++)
 	{
 		cout << "core no: " << i << " core comput: " << p[i]->get_comput() << " core com res re: " << p[i]->get_com_res_re() << " core state: " << p[i]->get_state() << " core task num: " << p[i]->get_task_num() << " core com res use: " << p[i]->get_com_res_use() << endl;
 	}
+	p = m_c_2.get_p_core();
+	cout << "m_c_2:" << endl;
+	for (i = 0; i < core_num; i++)
+	{
+		cout << "core no: " << i << " core comput: " << p[i]->get_comput() << " core com res re: " << p[i]->get_com_res_re() << " core state: " << p[i]->get_state() << " core task num: " << p[i]->get_task_num() << " core com res use: " << p[i]->get_com_res_use() << endl;
+	}
+	cout << "m_c_1" << endl;
  	sche.DLBQ_load_balance_schedule(&m_c_1);
+	cout << "m_c_2" << endl;
 	sche.Base_load_balance_schedule(&m_c_2);
 	p = m_c_1.get_p_core();
+	cout << "m_c_1:" << endl;
+	for (i = 0; i < core_num; i++)
+	{
+		cout << "core no: " << i << " core comput: " << p[i]->get_comput() << " core com res re: " << p[i]->get_com_res_re() << " core state: " << p[i]->get_state() << " core task num: " << p[i]->get_task_num() << " core com res use: " << p[i]->get_com_res_use() << endl;
+	}
+	p = m_c_2.get_p_core();
+	cout << "m_c_2:" << endl;
 	for (i = 0; i < core_num; i++)
 	{
 		cout << "core no: " << i << " core comput: " << p[i]->get_comput() << " core com res re: " << p[i]->get_com_res_re() << " core state: " << p[i]->get_state() << " core task num: " << p[i]->get_task_num() << " core com res use: " << p[i]->get_com_res_use() << endl;
 	}
 	get_LBD();
 	compare_multi_core_run_time();
-	return 0;
+ 	return 0;
 }
 
 int sys::create_multi_core(int core_num, int com, double height_state)
@@ -127,10 +151,13 @@ int sys::allo_task_to_core(task** p_1, task** p_2, task** p_3, int task_num, int
 		}
 		else
 		{
-			p_c_1[(i % core_num)]->add_one_task(*p_1[task_no], (i % core_num));
-			p_c_2[(i % core_num)]->add_one_task(*p_2[task_no], (i % core_num));
-			p_c_3[(i % core_num)]->add_one_task(*p_3[task_no], (i % core_num));
-			task_no++;
+			if (p_c_1[(i % core_num)]->get_com_res_re() > 30)
+			{
+				p_c_1[(i % core_num)]->add_one_task(*p_1[task_no], (i % core_num));
+				p_c_2[(i % core_num)]->add_one_task(*p_2[task_no], (i % core_num));
+				p_c_3[(i % core_num)]->add_one_task(*p_3[task_no], (i % core_num));
+				task_no++;
+			}
 		}
 		i++;
 	}
@@ -270,17 +297,22 @@ int sys::get_LBD()
 	pp_temp_core = m_c_1.get_p_core();
 	for (i = 0; i < *temp_core_num; i++)
 	{
+		temp_core_have_task_num[i] = new int;
 		temp_n = new int[1000];
 		temp_num[i] = temp_n;
 	}
-	m_c_1.get_core_task_num(0, *temp_core_num, temp_core_have_task_num);
+	//m_c_1.get_core_task_num(0, *temp_core_num, temp_core_have_task_num);
+	cout << "m_c_1 task: " << endl;
 	for (i = 0; i < *temp_core_num; i++)
 	{
 		pp_temp_core[i]->get_all_task(pp_temp_task, re_task_num);
+		*temp_core_have_task_num[i] = *re_task_num;
 		for (z = 0; z < *re_task_num; z++)
 		{
 			temp_num[i][z] = pp_temp_task[z]->get_time();
+			cout << temp_num[i][z] << " ";
 		}
+		cout << endl;
 	}
 	load_balance_class = m.S_D_int_sq(temp_num, temp_core_num, temp_core_have_task_num);
 	free(temp_core_have_task_num);
@@ -291,20 +323,25 @@ int sys::get_LBD()
 	pp_temp_core = m_c_2.get_p_core();
 	for (i = 0; i < *temp_core_num; i++)
 	{
+		temp_core_have_task_num[i] = new int;
 		temp_n = new int[1000];
 		temp_num[i] = temp_n;
 	}
-	m_c_2.get_core_task_num(0, *temp_core_num, temp_core_have_task_num);
+	//m_c_2.get_core_task_num(0, *temp_core_num, temp_core_have_task_num);
+	cout << "m_c_2 task: " << endl;
 	for (i = 0; i < *temp_core_num; i++)
 	{
 		pp_temp_core[i]->get_all_task(pp_temp_task, re_task_num);
+		*temp_core_have_task_num[i] = *re_task_num;
 		for (z = 0; z < *re_task_num; z++)
 		{
 			temp_num[i][z] = pp_temp_task[z]->get_time();
+			cout << temp_num[i][z] << " ";
 		}
+		cout << endl;
 	}
 	load_balance_class = m.S_D_int_sq(temp_num, temp_core_num, temp_core_have_task_num);
 	free(temp_core_have_task_num);
-	cout << "m_c_1 load balance class: " << load_balance_class << endl;
+	cout << "m_c_2 load balance class: " << load_balance_class << endl;
 	return 0;
 }

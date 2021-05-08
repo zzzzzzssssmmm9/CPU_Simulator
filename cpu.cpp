@@ -195,7 +195,7 @@ int core::add_task_p(task** p, int n, int core_no)       //·µ»ØÓĞ¼¸¸öÈÎÎñ·ÖÅäÊ§°
 	return 0;
 }
 
-int core::get_one_task(int no, task* p_return)
+int core::get_one_task(int no, task** p_return)
 {
 	ttask* p;
 	p = p_task_start->p;
@@ -204,7 +204,7 @@ int core::get_one_task(int no, task* p_return)
 	{
 		p = p->p;
 	}
-	p_return = &(p->T);
+	*p_return = &(p->T);
 	return 0;
 }
 
@@ -274,6 +274,19 @@ int core::remove_one_task(int model)
 				}
 			}
 		}
+		else
+		{
+			p_task_start->p = p->p;
+			task_num--;
+			if (model)
+			{
+				free(p);
+			}
+		}
+	}
+	if (task_num == 0)
+	{
+		p_task_end = p_task_start;
 	}
 	return 0;
 }
@@ -342,6 +355,19 @@ int core::get_first_task_prio()
 	ttask* p_t;
 	p_t = p_task_start->p;
 	return (p_t->T).get_prio();
+}
+
+int core::set_all_task_no(int n)
+{
+	int i;
+	ttask* pp_ttask;
+	pp_ttask = p_task_start;
+	for (i = 0; i < task_num; i++)
+	{
+		pp_ttask = pp_ttask->p;
+		(pp_ttask->T).set_core_no(n);
+	}
+	return 0;
 }
 
 int core::display()

@@ -12,6 +12,10 @@ int main()
 	{
 		height_core_no[i] = i * 3;
 	}
-	s.run(16, height_core_num, height_core_no, 1.0, 100, 30, 20);
+	height_core_no[0] = 0;
+	height_core_no[1] = 5;
+	//height_core_no[2] = 6;
+	//height_core_no[3] = 12;
+	s.run(32, height_core_num, height_core_no, 1.0, 100, 30, 100, 1, 900); //core num; height core num; height core no; height core threshold; task time; task com; task num grad
 	return 0;
 }
