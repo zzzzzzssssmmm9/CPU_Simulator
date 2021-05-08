@@ -5,7 +5,25 @@ sys::sys()
 	sche.set_modle(1);
 }
 
-int sys::run(int core_num, int height_num, int* height_core_no, double height_state, int task_run_time, int task_com, int task_grad, int task_num_modle, int t_n)
+int sys::run()
+{
+	int* height_core_no;
+	int height_core_num = 2;
+	int i;
+	height_core_no = new int[height_core_num];
+	for (i = 0; i < height_core_num; i++)
+	{
+		height_core_no[i] = i * 3;
+	}
+	height_core_no[0] = 0;
+	height_core_no[1] = 5;
+	//height_core_no[2] = 6;
+	//height_core_no[3] = 12;
+
+	load_balance(32, height_core_num, height_core_no, 1.0, 100, 30, 100, 1, 900); //core num; height core num; height core no; height core threshold; task time; task com; task num grad
+}
+
+int sys::load_balance(int core_num, int height_num, int* height_core_no, double height_state, int task_run_time, int task_com, int task_grad, int task_num_modle, int t_n)
 {
 	math m;
 	int i, z, task_num = 0, task_all_com, core_com;
