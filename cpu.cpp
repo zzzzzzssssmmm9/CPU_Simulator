@@ -287,6 +287,7 @@ int core::remove_one_task(int model)
 	if (task_num == 0)
 	{
 		p_task_end = p_task_start;
+		return 1;
 	}
 	return 0;
 }
@@ -370,6 +371,61 @@ int core::set_all_task_no(int n)
 	return 0;
 }
 
+int core::run_cpu(int time)
+{
+	ttask* p_temp_ttask;
+	task* p_temp_task;
+	int temp_time;
+	if (task_num == 0)
+	{
+		return 1;
+	}
+	else
+	{
+		p_temp_ttask = p_task_start->p;
+		p_temp_task = &(p_temp_ttask->T);
+		while (p_temp_task->get_prio() == 0)
+		{
+			if (remove_one_task(1))
+			{
+				return 1;
+			}
+			p_temp_ttask = p_task_start->p;
+			p_temp_task = &(p_temp_ttask->T);
+		}
+		while (time > 0)
+		{
+			temp_time = p_temp_task->get_time_re();
+			if (temp_time > time)
+			{
+				p_temp_task->run_task(temp_time);
+				return 0;
+			}
+			else
+			{
+				p_temp_task->run_task(temp_time);
+				time -= temp_time;
+				if (remove_one_task(1))
+				{
+					return 1;
+				}
+				p_temp_ttask = p_task_start->p;
+				p_temp_task = &(p_temp_ttask->T);
+				while (p_temp_task->get_prio() == 0)
+				{
+					if (remove_one_task(1))
+					{
+						return 1;
+					}
+					p_temp_ttask = p_task_start->p;
+					p_temp_task = &(p_temp_ttask->T);
+				}
+			}
+		}
+	}
+	return 0;
+}
+
 int core::display()
 {
 	return 0;
@@ -380,6 +436,7 @@ multi_core::multi_core()
 	core_num = 10;
 	state = 0;
 	p_core = new core * [1024];
+	alloc_task_core_no = 0;
 	for (i = 0; i < 10; i++)
 	{
 		p_temp_core = new core;
@@ -392,6 +449,7 @@ multi_core::multi_core(int num, double L, double M, double H)
 	core_num = num;
 	state = 0;
 	p_core = new core * [1024];
+	alloc_task_core_no = 0;
 	for (i = 0; i < num; i++)
 	{
 		p_temp_core = new core;
@@ -652,4 +710,27 @@ int multi_core::get_multi_core_res_re()
 		res_re += temp_p_core->get_com_res_re();
 	}
 	return res_re;
+}
+
+int multi_core::multi_core_run(int time)
+{
+	int i;
+	core** pp_temp_core;
+	pp_temp_core = p_core;
+	for (i = 0; i < core_num; i++)
+	{
+		pp_temp_core[i]->run_cpu(time);
+	}
+	return 0;
+}
+
+int multi_core::set_alloc_task_core_no(int no)
+{
+	alloc_task_core_no = no;
+	return 0;
+}
+
+int multi_core::get_alloc_task_core_no()
+{
+	return alloc_task_core_no;
 }

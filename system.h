@@ -23,4 +23,6 @@ public:
 	int compare_multi_core_run_time();
 	int get_LBD();
 	int load_balance(int core_num, int height_num, int* height_core_no, double height_state, int task_run_time, int task_com, int task_grad, int task_num_modle, int t_n);
+	int core_run(int time);
+	int core_add_task(int task_num, int task_run_time, int task_com);
 };

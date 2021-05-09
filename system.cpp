@@ -10,6 +10,8 @@ int sys::run()
 	int* height_core_no;
 	int height_core_num = 2;
 	int i;
+	double time = 0;
+	int count = 0;
 	height_core_no = new int[height_core_num];
 	for (i = 0; i < height_core_num; i++)
 	{
@@ -19,8 +21,22 @@ int sys::run()
 	height_core_no[1] = 5;
 	//height_core_no[2] = 6;
 	//height_core_no[3] = 12;
-
-	load_balance(32, height_core_num, height_core_no, 1.0, 100, 30, 100, 1, 900); //core num; height core num; height core no; height core threshold; task time; task com; task num grad
+	while (1)
+	{
+		if (count % 10 == 0)
+		{
+			cout << "system rum time now: " << time << "s" << endl;
+			core_run(1);
+		}
+		if (count % 4 == 0)
+		{
+			//load_balance(32, height_core_num, height_core_no, 1.0, 100, 30, 100, 1, 900); //core num; height core num; height core no; height core threshold; task time; task com; task num grad
+		}
+		core_add_task(1, 100, 30);
+		time += 0.1;
+		count++;
+	}
+	return 0;
 }
 
 int sys::load_balance(int core_num, int height_num, int* height_core_no, double height_state, int task_run_time, int task_com, int task_grad, int task_num_modle, int t_n)
@@ -108,6 +124,57 @@ int sys::load_balance(int core_num, int height_num, int* height_core_no, double 
  	return 0;
 }
 
+int sys::core_run(int time)
+{
+	m_c_1.multi_core_run(time);
+	m_c_2.multi_core_run(time);
+	return 0;
+}
+
+int sys::core_add_task(int task_num, int task_run_time, int task_com)
+{
+	task** pp_temp_task_1;
+	task** pp_temp_task_2;
+	task** pp_temp_task_3;
+	task* temp_task;
+	int i;
+	int core_num;
+	int temp_core_no_1 = m_c_1.get_alloc_task_core_no();
+	int temp_core_no_2 = m_c_2.get_alloc_task_core_no();
+	int temp_core_no_3 = m_c_3.get_alloc_task_core_no();
+	pp_temp_task_1 = new task * [task_num];
+	pp_temp_task_2 = new task * [task_num];
+	pp_temp_task_3 = new task * [task_num];
+	core** p_c_1, ** p_c_2, ** p_c_3;
+	core_num = m_c_1.get_core_num();
+	p_c_1 = m_c_1.get_p_core();
+	p_c_2 = m_c_2.get_p_core();
+	p_c_3 = m_c_3.get_p_core();
+	create_task(task_num, task_run_time, task_com, pp_temp_task_1);
+	for (i = 0; i < task_num; i++)
+	{
+		temp_task = new task;
+		*temp_task = *pp_temp_task_1[i];
+		pp_temp_task_2[i] = temp_task;
+		temp_task = new task;
+		*temp_task = *pp_temp_task_1[i];
+		pp_temp_task_3[i] = temp_task;
+	}
+	for (i = 0; i < task_num; i++)
+	{
+		p_c_1[temp_core_no_1]->add_one_task(*pp_temp_task_1[i], temp_core_no_1);
+		p_c_2[temp_core_no_2]->add_one_task(*pp_temp_task_2[i], temp_core_no_2);
+		p_c_3[temp_core_no_3]->add_one_task(*pp_temp_task_3[i], temp_core_no_3);
+		temp_core_no_1 = (temp_core_no_1 + 1) % core_num;
+		temp_core_no_2 = (temp_core_no_2 + 1) % core_num;
+		temp_core_no_3 = (temp_core_no_3 + 1) % core_num;
+	}
+	m_c_1.set_alloc_task_core_no(temp_core_no_1);
+	m_c_2.set_alloc_task_core_no(temp_core_no_2);
+	m_c_3.set_alloc_task_core_no(temp_core_no_3);
+	return 0;
+}
+
 int sys::create_multi_core(int core_num, int com, double height_state)
 {
 	core** p_1, ** p_2, ** p_3;
@@ -179,6 +246,9 @@ int sys::allo_task_to_core(task** p_1, task** p_2, task** p_3, int task_num, int
 		}
 		i++;
 	}
+	m_c_1.set_alloc_task_core_no(i % core_num);
+	m_c_2.set_alloc_task_core_no(i % core_num);
+	m_c_3.set_alloc_task_core_no(i % core_num);
 	return 0;
 }
 

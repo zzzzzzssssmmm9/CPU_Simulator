@@ -8,6 +8,8 @@ private:
 	int task_time;
 	int task_com;
 	int task_prio;
+	int task_time_re;
+	int task_time_run;
 	int core_no;
 	process * PProc;
 public:
@@ -23,6 +25,9 @@ public:
 	int set_com(int com);
 	int set_prio(int prio);
 	int set_id(int id);
+	int get_time_re();
+	int get_tume_run();
+	int run_task(int time);
 };
 
 struct ttask

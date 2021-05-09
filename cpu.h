@@ -48,6 +48,7 @@ public:
 	int get_first_task_com();
 	int get_first_task_prio();
 	int set_all_task_no(int n);
+	int run_cpu(int time);
 	int display();
 };
 
@@ -57,6 +58,7 @@ private:
 	int core_num;               //多核处理器核心数量
 	int state;					//多核处理器状态: 0 - 负载均衡；1 - 非负载均衡
 	core** p_core;
+	int alloc_task_core_no;
 public:
 	multi_core();
 	multi_core(int num, double L, double M, double H);
@@ -88,4 +90,7 @@ public:
 	core** get_p_core();
 	int get_core_num();
 	int get_multi_core_res_re();
+	int multi_core_run(int time);
+	int set_alloc_task_core_no(int no);
+	int get_alloc_task_core_no();
 };

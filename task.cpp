@@ -8,6 +8,8 @@ task::task()
 	task_com = 10;
 	task_prio = 1;
 	core_no = 0;
+	task_time_re = task_time;
+	task_time_run = 0;
 }
 
 task::task(int id, int time, int com, int prio, int core)
@@ -17,6 +19,8 @@ task::task(int id, int time, int com, int prio, int core)
 	task_com = com;
 	task_prio = prio;
 	core_no = core;
+	task_time_re = task_time;
+	task_time_run = 0;
 }
 
 int task::get_time()
@@ -53,6 +57,7 @@ int task::set_core_no(int no)
 int task::set_run_time(int time)
 {
 	task_time = time;
+	task_time_re = task_time;
 	return 0;
 }
 
@@ -71,5 +76,22 @@ int task::set_prio(int prio)
 int task::set_id(int id)
 {
 	task_ID = id;
+	return 0;
+}
+
+int task::get_time_re()
+{
+	return task_time_re;
+}
+
+int task::get_tume_run()
+{
+	return task_time_run;
+}
+
+int task::run_task(int time)
+{
+	task_time_re -= time;
+	task_time_run += time;
 	return 0;
 }
