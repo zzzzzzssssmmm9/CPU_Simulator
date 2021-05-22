@@ -396,6 +396,10 @@ int schedule::trimTask(multi_core m_c, task** p, int* task_num, int task_qua, ta
 	sort_prio(p, *task_num);          
 	while (res_dif_v > 0)
 	{
+		if (*task_num == 0)
+		{
+			return 1;
+		}
 		i = 1;
 		temp_core_no = p[(*task_num) - i]->get_core_no();
 		temp_qua = get_core_qua(temp_core_no, m_c);
